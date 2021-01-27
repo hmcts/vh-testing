@@ -1,0 +1,8 @@
+---
+apiVersion: v2
+name: vh-testing
+home: https://github.com/hmcts/vh-testing
+version: 0.0.1
+description: Helm Chart for Video Hearing User-Api
+maintainers:
+  - name: VH Devops
