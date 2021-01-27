@@ -1,7 +1,6 @@
 ---
 java:
   image: 'sdshmctspublic.azurecr.io/vh/bash:latest'
-  applicationPort: 80
   ingressHost: vh-testing
   releaseNameOverride: vh-testing
   aadIdentityName: vh-aad-identity
@@ -18,10 +17,3 @@ java:
         - defaultpassword
         - redis-connection-str
         - testdefaultpassword
-  environment:
-    ADGROUP__ADMINISTRATOR: VirtualRoomAdministrator
-    ADGROUP__CASETYPE: CaseType
-    ADGROUP__EXTERNAL: External
-    ADGROUP__JUDGE: VirtualRoomJudge
-    ADGROUP__JUDGESTESTGROUP: TestAccount
-    ADGROUP__PROFESSIONALUSER: VirtualRoomProfessionalUser
