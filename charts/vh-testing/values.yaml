@@ -1,6 +1,4 @@
 ---
 java:
   image: 'sdshmctspublic.azurecr.io/vh/bash:latest'
-  ingressHost: vh-testing
-  releaseNameOverride: vh-testing
-  aadIdentityName: vh-aad-identity
+
