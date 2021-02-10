@@ -22,7 +22,7 @@ parameters:
 steps:
   - bash: |
       ls -Ral
-    displayName: troubleshooting_step
+    displayName: 'troubleshooting_step'
 
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
