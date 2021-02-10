@@ -31,8 +31,8 @@ parameters:
 
 
 steps:
-
-  - checkout: vh-${{ parameters.git_repo_name }}
+  - checkout: self
+  - checkout: ${{ parameters.git_repo_name }}
 
   - bash: |
       ls -Ral
