@@ -76,8 +76,8 @@ steps:
   - checkout: ${{ parameters.git_repo_name }}
 
   - bash: |
-      ls -Ral
-    displayName: 'troubleshooting_step'
+      ls -al
+    displayName: 'Repo Checking'
 
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
@@ -89,7 +89,7 @@ steps:
       dockerComposeCommand: build
 
   - task: AzureCLI@1
-    displayName: 'Setup Authentication'
+    displayName: 'Docker Tasks'
     inputs:
         azureSubscription: 'DTS-SHAREDSERVICES-PROD'
         addSpnToEnvironment: true
