@@ -51,16 +51,18 @@ steps:
       REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
       docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
       docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+      docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
+      docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
     displayName: 'Bash Script'
 
 
-  - task: Docker@0
-    displayName: 'Push an image'
-    inputs:
-      azureSubscription: 'DTS-SHAREDSERVICES-PROD'
-      azureContainerRegistry: '{"loginServer":"sdshmctspublic.azurecr.io", "id" : "/subscriptions/5ca62022-6aa2-4cee-aaa7-e7536c8d566c/resourceGroups/sds-acr-rg/providers/Microsoft.ContainerRegistry/registries/sdshmctspublic"}'
-      action: 'Push an image'
-      imageName: 'sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}'
-      qualifyImageName: false
-      additionalImageTags: 1
-      includeSourceTags: true
+  # - task: Docker@0
+  #   displayName: 'Push an image'
+  #   inputs:
+  #     azureSubscription: 'DTS-SHAREDSERVICES-PROD'
+  #     azureContainerRegistry: '{"loginServer":"sdshmctspublic.azurecr.io", "id" : "/subscriptions/5ca62022-6aa2-4cee-aaa7-e7536c8d566c/resourceGroups/sds-acr-rg/providers/Microsoft.ContainerRegistry/registries/sdshmctspublic"}'
+  #     action: 'Push an image'
+  #     imageName: 'sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}'
+  #     qualifyImageName: false
+  #     additionalImageTags: 1
+  #     includeSourceTags: true
