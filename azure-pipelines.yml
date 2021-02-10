@@ -47,14 +47,21 @@ steps:
       qualifyImageNames: false
       dockerComposeCommand: build
 
-  - bash: |
-      REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
-      docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
-      docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
-      docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
-      docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
-    displayName: 'Bash Script'
-
+  - task: AzureCLI@1
+    displayName: 'Setup Authentication'
+    inputs:
+        azureSubscription: 'DTS-SHAREDSERVICES-PROD'
+        addSpnToEnvironment: true
+        scriptLocation: inlineScript
+        failOnStandardError: 'true'
+        inlineScript: |   
+          docker images
+          REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
+          docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
+          docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+          docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:1
+          docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+  
 
   # - task: Docker@0
   #   displayName: 'Push an image'
