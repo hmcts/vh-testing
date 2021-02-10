@@ -20,6 +20,42 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
+    - repository: bookings-api
+      type: github
+      name: hmcts/vh-bookings-api
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
+    - repository: notification-api
+      type: github
+      name: hmcts/vh-notification-api
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
+    - repository: test-web
+      type: github
+      name: hmcts/vh-test-web
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
+    - repository: test-api
+      type: github
+      name: hmcts/vh-test-api
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
+    - repository: admin-web
+      type: github
+      name: hmcts/vh-admin-web
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
+    - repository: service-web
+      type: github
+      name: hmcts/vh-service-web
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
 parameters:
   - name: git_repo_name
     displayName: Git Repo Name
@@ -28,7 +64,12 @@ parameters:
       - user-api
       - video-api
       - video-web
-
+      - bookings-api
+      - notification-api
+      - test-web
+      - test-api
+      - admin-web
+      - service-web
 
 steps:
   - checkout: self
@@ -55,22 +96,10 @@ steps:
         scriptLocation: inlineScript
         failOnStandardError: 'true'
         inlineScript: |   
-          docker images
           REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+          docker images
           az acr login --name sdshmctspublic
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
-  
-
-  # - task: Docker@0
-  #   displayName: 'Push an image'
-  #   inputs:
-  #     azureSubscription: 'DTS-SHAREDSERVICES-PROD'
-  #     azureContainerRegistry: '{"loginServer":"sdshmctspublic.azurecr.io", "id" : "/subscriptions/5ca62022-6aa2-4cee-aaa7-e7536c8d566c/resourceGroups/sds-acr-rg/providers/Microsoft.ContainerRegistry/registries/sdshmctspublic"}'
-  #     action: 'Push an image'
-  #     imageName: 'sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}'
-  #     qualifyImageName: false
-  #     additionalImageTags: 1
-  #     includeSourceTags: true
