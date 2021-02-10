@@ -59,6 +59,7 @@ steps:
           REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+          az acr login --name sdshmctspublic
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
   
