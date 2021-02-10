@@ -2,19 +2,19 @@ trigger: none
 
 resources:
   repositories:
-    - repository: userapi
+    - repository: user-api
       type: github
       name: hmcts/vh-user-api
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
-    - repository: videoapi
+    - repository: video-api
       type: github
       name: hmcts/vh-video-api
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
-    - repository: videoweb
+    - repository: video-web
       type: github
       name: hmcts/vh-video-web
       ref: refs/heads/master
@@ -31,6 +31,9 @@ parameters:
 
 
 steps:
+
+  - checkout: vh-${{ parameters.git_repo_name }}
+
   - bash: |
       ls -Ral
     displayName: 'troubleshooting_step'
