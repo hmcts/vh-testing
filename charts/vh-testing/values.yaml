@@ -1,7 +1,6 @@
 ---
 java:
   image: 'sdshmctspublic.azurecr.io/vh/busybox:latest'
-  applicationPort: 8080
   aadIdentityName: vh-aad-identity
   keyVaults:
     vh-infra-core:
