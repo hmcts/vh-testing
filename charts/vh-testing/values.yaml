@@ -1,8 +1,6 @@
 ---
 java:
   image: 'sdshmctspublic.azurecr.io/vh/nginx:latest'
-  securityContext:
-    runAsUser: 1001
   applicationPort: 8080
   aadIdentityName: vh-aad-identity
   keyVaults:
