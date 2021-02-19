@@ -56,6 +56,12 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
+    - repository: booking-queue-subscriber
+      type: github
+      name: hmcts/vh-booking-queue-subscriber
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
 parameters:
   - name: git_repo_name
     displayName: Git Repo Name
@@ -70,6 +76,7 @@ parameters:
       - test-api
       - admin-web
       - service-web
+      - booking-queue-subscriber
 
 steps:
   - checkout: self
