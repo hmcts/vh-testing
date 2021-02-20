@@ -83,7 +83,7 @@ parameters:
       - admin-web
       - service-web
       - booking-queue-subscriber
-      - vh-scheduler-jobs
+      - scheduler-jobs
 
 steps:
   - checkout: self
