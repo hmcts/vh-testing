@@ -62,7 +62,7 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
-    - repository: vh-scheduler-jobs
+    - repository: scheduler-jobs
       type: github
       name: hmcts/vh-scheduler-jobs
       ref: refs/heads/master
