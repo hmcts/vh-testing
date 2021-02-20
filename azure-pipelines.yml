@@ -62,6 +62,12 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts_shaed
 
+    - repository: vh-scheduler-jobs
+      type: github
+      name: hmcts/vh-scheduler-jobs
+      ref: refs/heads/master
+      endpoint: hmcts_shaed
+
 parameters:
   - name: git_repo_name
     displayName: Git Repo Name
@@ -77,6 +83,7 @@ parameters:
       - admin-web
       - service-web
       - booking-queue-subscriber
+      - vh-scheduler-jobs
 
 steps:
   - checkout: self
