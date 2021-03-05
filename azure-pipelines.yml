@@ -90,8 +90,8 @@ steps:
   - checkout: ${{ parameters.git_repo_name }}
 
   - bash: |
-      ls -al
-    displayName: 'Repo Checking'
+      git switch -c $(Build.SourceBranchName)
+    displayName: 'Branch Checkout'
 
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
