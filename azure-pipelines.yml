@@ -95,12 +95,6 @@ steps:
       git switch -c $(Build.SourceBranchName)
     displayName: 'Branch Checkout'
 
-  - task: Bash@3
-    inputs:
-      targetType: 'inline'
-      workingDirectory: $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
-      script: git switch -c $(Build.SourceBranchName)
-
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
     inputs:
