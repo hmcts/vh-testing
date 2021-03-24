@@ -3,33 +3,5 @@ java:
   image: 'sdshmctspublic.azurecr.io/vh/nginx:latest'
   applicationPort: 8080
   aadIdentityName: vh-aad-identity
-  keyVaults:
-    vh-infra-core:
-      excludeEnvironmentSuffix: false
-      resourceGroup: vh-infra-core-{{ .Values.global.environment }}
-      usePodIdentity: true
-      secrets:
-        - customtoken--secret
-        - customtoken--thirdpartysecret
-        - cvpconfiguration--managedidentityclientid
-        - azuread--vhvideowebclientid
-        - servicebusqueue--connectionstring
-        - services--vhvideowebclientid
-        - wowzaconfiguration--password
-        - wowzaconfiguration--storageaccountkey
-        - wowzaconfiguration--managedidentityclientid
-        - vhvideoapi
-    vh-video-api:
-      excludeEnvironmentSuffix: false
-      resourceGroup: vh-infra-core-{{ .Values.global.environment }}
-      usePodIdentity: true
-      secrets:
-        - azuread--clientsecret
-        - azuread--clientid
-        - applicationinsights-instrumentationkey
-        - applicationinsights-connection-string
-        - kinlyconfiguration--apisecret
-        - kinlyconfiguration--callbacksecret
-        - kinlyconfiguration--selftestapisecret
-        - ConnectionStrings--VhVideoApi
-        - sqlazureconnstr--VhVideoApi
+
+ 
