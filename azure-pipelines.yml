@@ -47,7 +47,7 @@ resources:
     - repository: admin-web
       type: github
       name: hmcts/vh-admin-web
-      ref: refs/heads/master
+      ref: refs/heads/VIH-7247-admin-web-sds
       endpoint: hmcts
 
     - repository: service-web
@@ -115,6 +115,7 @@ steps:
           REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+
           docker images
           az acr login --name sdshmctspublic
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
