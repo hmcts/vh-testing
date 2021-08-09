@@ -68,6 +68,12 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts
 
+    - repository: cnp-azuredevops-libraries
+      type: github
+      name: hmcts/cnp-azuredevops-libraries
+      ref: refs/heads/master
+      endpoint: hmcts
+
 parameters:
   - name: git_repo_name
     displayName: Git Repo Name
@@ -125,7 +131,7 @@ steps:
     pool:
       vmImage: 'Ubuntu 16.04'
     steps:
-    - template: steps/charts/validate.yaml@cnp-library
+    - template: cnp-azuredevops-libraries/steps/charts/validate.yaml@cnp-library
       parameters:
         chartName: ${{ parameters.git_repo_name }}
         chartReleaseName: ${{ parameters.git_repo_name }}
