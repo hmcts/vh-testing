@@ -120,3 +120,22 @@ steps:
           az acr login --name sdshmctspublic
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
           docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+
+  - task: Validate
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+    - template: steps/charts/validate.yaml@cnp-library
+      parameters:
+        chartName: ${{ parameters.git_repo_name }}
+        chartReleaseName: ${{ parameters.git_repo_name }}
+        chartNamespace: vh
+        helmInstallTimeout: "500"
+        serviceConnection: "DTS-SHAREDSERVICES-PROD"
+        registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+        aksResourceGroup: "ss-dev-00-rg"
+        aksCluster: "ss-dev-00-aks"
+        acrName: "sdshmctspublic"
+
+
+
