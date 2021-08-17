@@ -128,21 +128,32 @@ jobs:
             docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
             docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
 
-- job: Validate
-  pool:
-    vmImage: 'Ubuntu 16.04'
-  steps:
-  - template: /steps/charts/validate.yaml@cnp-library
-    parameters:
-      chartName: ${{ parameters.git_repo_name }}
-      chartReleaseName: ${{ parameters.git_repo_name }}
-      chartNamespace: vh
-      helmInstallTimeout: "500"
-      serviceConnection: "DTS-SHAREDSERVICES-PROD"
-      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-      aksResourceGroup: "ss-prod-00-rg"
-      aksCluster: "ss-prod-00-aks"
-      acrName: "sdshmctspublic"
+    - task: HelmInstaller@1
+      inputs:
+        helmVersionToInstall: 'latest'
+
+    - bash: |
+        REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
+        helm repo add sdshmctspublic https://sdshmctspublic.azurecr.io/helm/v1/repo
+        helm chart save $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
+        helm chart push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
+
+
+#- job: Validate
+#  pool:
+#    vmImage: 'Ubuntu 16.04'
+#  steps:
+#  - template: /steps/charts/validate.yaml@cnp-library
+#    parameters:
+#      chartName: ${{ parameters.git_repo_name }}
+#      chartReleaseName: ${{ parameters.git_repo_name }}
+#      chartNamespace: vh
+#      helmInstallTimeout: "500"
+#      serviceConnection: "DTS-SHAREDSERVICES-PROD"
+#      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+#      aksResourceGroup: "ss-prod-00-rg"
+#      aksCluster: "ss-prod-00-aks"
+#      acrName: "sdshmctspublic"
 
 
 
