@@ -136,7 +136,7 @@ jobs:
         export HELM_EXPERIMENTAL_OCI=1
         REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
         helm repo add sdshmctspublic https://sdshmctspublic.azurecr.io/helm/v1/repo
-        helm chart save $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
+        helm chart save $REPOTRIM/charts/vh-${{ parameters.git_repo_name }} sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
         helm chart push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
 
 
