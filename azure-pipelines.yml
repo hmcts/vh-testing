@@ -140,21 +140,22 @@ jobs:
         helm chart push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
 
 
-#- job: Validate
-#  pool:
-#    vmImage: 'Ubuntu 16.04'
-#  steps:
-#  - template: /steps/charts/validate.yaml@cnp-library
-#    parameters:
-#      chartName: ${{ parameters.git_repo_name }}
-#      chartReleaseName: ${{ parameters.git_repo_name }}
-#      chartNamespace: vh
-#      helmInstallTimeout: "500"
-#      serviceConnection: "DTS-SHAREDSERVICES-PROD"
-#      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-#      aksResourceGroup: "ss-prod-00-rg"
-#      aksCluster: "ss-prod-00-aks"
-#      acrName: "sdshmctspublic"
+- job: Validate
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  steps:
+  - template: /steps/charts/validate.yaml@cnp-library
+    parameters:
+      chartName: ${{ parameters.git_repo_name }}
+      chartReleaseName: ${{ parameters.git_repo_name }}
+      chartNamespace: "vh"
+      chartPath: "./charts/${{ parameters.git_repo_name }}"
+      helmInstallTimeout: "500"
+      serviceConnection: "DTS-SHAREDSERVICES-PROD"
+      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+      aksResourceGroup: "ss-prod-00-rg"
+      aksCluster: "ss-prod-00-aks"
+      acrName: "sdshmctspublic"
 
 
 
