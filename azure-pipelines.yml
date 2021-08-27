@@ -149,7 +149,7 @@ jobs:
       chartName: ${{ parameters.git_repo_name }}
       chartReleaseName: ${{ parameters.git_repo_name }}
       chartNamespace: "vh"
-      chartPath: "./charts/${{ parameters.git_repo_name }}"
+      chartPath: "./charts/"
       helmInstallTimeout: "500"
       serviceConnection: "DTS-SHAREDSERVICES-PROD"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
