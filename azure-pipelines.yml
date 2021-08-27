@@ -35,13 +35,13 @@ resources:
     - repository: test-web
       type: github
       name: hmcts/vh-test-web
-      ref: refs/heads/VIH-7245-test-api
+      ref: refs/heads/master
       endpoint: hmcts
 
     - repository: test-api
       type: github
       name: hmcts/vh-test-api
-      ref: refs/heads/master
+      ref: refs/heads/VIH-7245-test-api
       endpoint: hmcts
 
     - repository: admin-web
