@@ -97,7 +97,7 @@ jobs:
     - checkout: ${{ parameters.git_repo_name }}
 
     - bash: |
-        echo "testing"
+        echo "testing. Repo name ${{ parameters.git_repo_name }}"
         cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
         git switch -c $(Build.SourceBranchName)
       displayName: 'Branch Checkout'
@@ -149,7 +149,7 @@ jobs:
       chartName: vh-${{ parameters.git_repo_name }}
       chartReleaseName: ${{ parameters.git_repo_name }}
       chartNamespace: "vh"
-      chartPath: "./charts/"
+      chartPath: "vh-${{ parameters.git_repo_name }}/charts/"
       helmInstallTimeout: "500"
       serviceConnection: "DTS-SHAREDSERVICES-PROD"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
