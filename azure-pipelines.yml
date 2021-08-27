@@ -146,7 +146,7 @@ jobs:
   steps:
   - template: /steps/charts/validate.yaml@cnp-library
     parameters:
-      chartName: ${{ parameters.git_repo_name }}
+      chartName: vh-${{ parameters.git_repo_name }}
       chartReleaseName: ${{ parameters.git_repo_name }}
       chartNamespace: "vh"
       chartPath: "./charts/"
