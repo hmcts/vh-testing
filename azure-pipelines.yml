@@ -59,7 +59,7 @@ resources:
     - repository: booking-queue-subscriber
       type: github
       name: hmcts/vh-booking-queue-subscriber
-      ref: refs/heads/VIH-7337-vh-booking-queue-subscriber
+      ref: refs/heads/master
       endpoint: hmcts
 
     - repository: scheduler-jobs
