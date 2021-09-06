@@ -1,6 +1,6 @@
 parameters:
   serviceConnection: "DCD-CFTAPPS-DEV"
-  registryServiceConnection: "azurerm-prod"
+  registryServiceConnection: "sdshmctspublic"
   aksResourceGroup: "preview-00-rg"
   aksCluster: "preview-00-aks"
   acrName: "hmctspublic"
