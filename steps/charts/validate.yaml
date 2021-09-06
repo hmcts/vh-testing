@@ -15,7 +15,7 @@ parameters:
   helmInstallWait: "0"
   valuesFile: "ci-values.yaml"
 
-tasks:
+steps:
   - checkout: self
     clean: true
 
