@@ -144,6 +144,13 @@ jobs:
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:
+  
+  - task: Bash@3
+    displayName: logger
+    inputs:
+      targetType: inline
+      script: echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)
+
   - template: /steps/charts/validate.yaml@cnp-library
     parameters:
       chartName: vh-${{ parameters.git_repo_name }}
