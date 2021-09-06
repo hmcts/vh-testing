@@ -143,15 +143,14 @@ jobs:
 - job: Validate
   pool:
     vmImage: 'Ubuntu 18.04'
-  steps:
-  
+  steps:  
   - task: Bash@3
     displayName: logger
     inputs:
       targetType: inline
       script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
   
-  - template: /steps/charts/validate.yaml
+  - template: ./steps/charts/validate.yaml
     parameters:  
       serviceConnection: "DTS-SHAREDSERVICES-PROD"
       registryServiceConnection: "azurerm-prod"
