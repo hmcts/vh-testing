@@ -149,20 +149,38 @@ jobs:
     displayName: logger
     inputs:
       targetType: inline
-      script: echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)
-
-  - template: /steps/charts/validate.yaml@cnp-library
-    parameters:
-      chartName: vh-${{ parameters.git_repo_name }}
-      chartReleaseName: ${{ parameters.git_repo_name }}
-      chartNamespace: "vh"
-      chartPath: "$(System.DefaultWorkingDirectory)/vh-${{ parameters.git_repo_name }}/charts/"
-      helmInstallTimeout: "500"
+      script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
+  
+  - template: /steps/charts/validate.yaml
+    parameters:  
       serviceConnection: "DTS-SHAREDSERVICES-PROD"
-      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-      aksResourceGroup: "ss-prod-00-rg"
-      aksCluster: "ss-prod-00-aks"
+      registryServiceConnection: "azurerm-prod"
+      aksResourceGroup: "ss-dev-00-rg"
+      aksCluster: "ss-dev-00-aks"
       acrName: "sdshmctspublic"
+      chartName: "vh-${{ parameters.git_repo_name }}"
+      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+      chartNamespace: "VH"
+      chartPath: "./"
+      helmVersion: "3.5.2"
+      helmInstallTimeout: "120"
+      helmTestTimeout: "300"
+      helmDeleteWait: "0"
+      helmInstallWait: "0"
+      valuesFile: "values.yaml"
+
+  #- template: /steps/charts/validate.yaml@cnp-library
+  #  parameters:
+  #    chartName: vh-${{ parameters.git_repo_name }}
+  #    chartReleaseName: ${{ parameters.git_repo_name }}
+  #    chartNamespace: "vh"
+  #    chartPath: "$(System.DefaultWorkingDirectory)/vh-${{ parameters.git_repo_name }}/charts/"
+  #    helmInstallTimeout: "500"
+  #    serviceConnection: "DTS-SHAREDSERVICES-PROD"
+  #    registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+  #    aksResourceGroup: "ss-prod-00-rg"
+  #    aksCluster: "ss-prod-00-aks"
+  #    acrName: "sdshmctspublic"
 
 
 
