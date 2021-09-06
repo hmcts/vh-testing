@@ -1,0 +1,60 @@
+parameters:
+  serviceConnection: "DCD-CFTAPPS-DEV"
+  registryServiceConnection: "azurerm-prod"
+  aksResourceGroup: "preview-00-rg"
+  aksCluster: "preview-00-aks"
+  acrName: "hmctspublic"
+  chartName: ""
+  chartReleaseName: ""
+  chartNamespace: ""
+  chartPath: "./"
+  helmVersion: "3.5.2"
+
+steps:
+  - checkout: self
+    clean: true
+
+  - task: HelmInstaller@1
+    displayName: 'Install Helm ${{parameters.helmVersion}}'
+    inputs:
+      helmVersionToInstall: ${{parameters.helmVersion}}
+  - task: AzureCLI@1
+    displayName: "AKS Authenticate"
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptLocation: "inlineScript"
+      inlineScript: az aks get-credentials --admin --resource-group ${{ parameters.aksResourceGroup }} --name ${{ parameters.aksCluster }}
+
+  - task: AzureCLI@1
+    displayName: "Add custom charts repo"
+    inputs:
+      azureSubscription: ${{ parameters.registryServiceConnection }}
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo remove hmctspublic # workaround expired auth token
+        helm repo add hmctspublic https://hmctspublic.azurecr.io/helm/v1/repo
+
+  - script: helm dependency update ${{ parameters.chartPath }}${{ parameters.chartName }}
+    displayName: "Retrieve helm dependencies (if any)"
+
+  - task: AzureCLI@1
+    displayName: "Helm Package"
+    inputs:
+      azureSubscription: ${{ parameters.registryServiceConnection }}
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        rm -f $(ls ${{ parameters.chartPath }}${{ parameters.chartName }}-[0-9]*)
+        echo "Building branch $(Build.SourceBranch)"
+        tag=$(echo $(Build.SourceBranch) | cut -d'/' -f 3 | sed 's/v//')
+        echo "publishing chart version $tag"
+        helm package ${{ parameters.chartPath }}${{ parameters.chartName }} --version ${tag} --app-version ${tag}
+
+  - task: AzureCLI@1
+    displayName: "Helm Publish"
+    inputs:
+      azureSubscription: ${{ parameters.registryServiceConnection }}
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        CHART_FILE=$(ls ${{ parameters.chartName }}-[0-9]*)
+        az acr helm push --name ${{ parameters.acrName }} $CHART_FILE
