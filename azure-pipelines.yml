@@ -152,7 +152,7 @@ jobs:
   
   - template: ./steps/charts/validate.yaml
     parameters:  
-      serviceConnection: "DTS-SHAREDSERVICES-PROD"
+      serviceConnection: "DTS-SHAREDSERVICES-DEV"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
       aksResourceGroup: "ss-dev-00-rg"
       aksCluster: "ss-dev-00-aks"
