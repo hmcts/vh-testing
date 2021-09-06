@@ -149,10 +149,24 @@ jobs:
     inputs:
       targetType: inline
       script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
-  
-  - template: ./steps/charts/validate.yaml
+
+  - template: ./steps/charts/release.yaml
     parameters:  
       serviceConnection: "DTS-SHAREDSERVICES-STG"
+      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+      aksResourceGroup: "ss-stg-00-rg"
+      aksCluster: "ss-stg-00-aks"
+      acrName: "sdshmctspublic"
+      chartName: "vh-${{ parameters.git_repo_name }}"
+      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+      chartNamespace: "VH"
+      chartPath: "./"
+      helmVersion: "3.5.2"
+  
+
+  - template: ./steps/charts/validate.yaml
+    parameters:  
+      serviceConnection: "DTS-SHAREDSERVICES-PROD"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
       aksResourceGroup: "ss-stg-00-rg"
       aksCluster: "ss-stg-00-aks"
