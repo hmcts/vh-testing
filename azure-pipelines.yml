@@ -152,10 +152,10 @@ jobs:
   
   - template: ./steps/charts/validate.yaml
     parameters:  
-      serviceConnection: "DTS-SHAREDSERVICES-DEV"
+      serviceConnection: "DTS-SHAREDSERVICES-STG"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-      aksResourceGroup: "ss-dev-00-rg"
-      aksCluster: "ss-dev-00-aks"
+      aksResourceGroup: "ss-stg-00-rg"
+      aksCluster: "ss-stg-00-aks"
       acrName: "sdshmctspublic"
       chartName: "vh-${{ parameters.git_repo_name }}"
       chartReleaseName: "vh-${{ parameters.git_repo_name }}"
