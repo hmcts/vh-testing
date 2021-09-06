@@ -136,7 +136,7 @@ jobs:
         export HELM_EXPERIMENTAL_OCI=1
         REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
         helm repo add sdshmctspublic https://sdshmctspublic.azurecr.io/helm/v1/repo
-        helm chart save $REPOTRIM/charts/vh-${{ parameters.git_repo_name }} sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
+        helm chart save vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }} sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
         helm chart push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
 
 
@@ -149,7 +149,7 @@ jobs:
       chartName: vh-${{ parameters.git_repo_name }}
       chartReleaseName: ${{ parameters.git_repo_name }}
       chartNamespace: "vh"
-      chartPath: "vh-${{ parameters.git_repo_name }}/charts/"
+      chartPath: "$(System.DefaultWorkingDirectory)/vh-${{ parameters.git_repo_name }}/charts/"
       helmInstallTimeout: "500"
       serviceConnection: "DTS-SHAREDSERVICES-PROD"
       registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
