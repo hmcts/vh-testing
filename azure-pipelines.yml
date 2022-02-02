@@ -121,20 +121,13 @@ jobs:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
         repositoryName:  ${{ variables.repositoryName }}
-  
-    - bash: |
-        REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
-        echo $REPOTRIM
-        echo "##vso[task.setvariable variable=name;isOutput=true]$REPOTRIM"
-      displayName: "Format Image Name"
-      name: image
 
     - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
         repositoryName:  ${{ variables.repositoryName }}
-        imageName: "$(image.name)"
+        imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
         imageTags:
           - '$(Build.BuildNumber)'
           - 'latest'
