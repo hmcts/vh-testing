@@ -134,7 +134,7 @@ jobs:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
         repositoryName:  ${{ variables.repositoryName }}
-        imageName: $(image.name)
+        imageName: "$(image.name)"
         imageTags:
           - '$(Build.BuildNumber)'
           - 'latest'
