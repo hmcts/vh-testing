@@ -98,6 +98,7 @@ parameters:
       - scheduler-jobs
 jobs:
 - job: Dock
+  displayName: Build and Push Docker Image
   variables:
     - name: subscription
       value: 'DTS-SHAREDSERVICES-PROD'
@@ -123,15 +124,17 @@ jobs:
   
     - bash: |
         REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
-        echo "##vso[task.setvariable variable=image_name;isOutput=true]$REPOTRIM"
+        echo $REPOTRIM
+        echo "##vso[task.setvariable variable=name;isOutput=true]$REPOTRIM"
       displayName: "Format Image Name"
+      name: image
 
     - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
         repositoryName:  ${{ variables.repositoryName }}
-        imageName: $(image_name)
+        imageName: $(image.name)
         imageTags:
           - '$(Build.BuildNumber)'
           - 'latest'
@@ -144,6 +147,8 @@ jobs:
         chartName: 'vh-${{ parameters.git_repo_name }}'
 
 - job: Validate
+  dependsOn: Dock
+  displayName: Validate Helm Charts
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:  
