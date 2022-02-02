@@ -132,7 +132,7 @@ jobs:
           - '$(Build.BuildNumber)'
           - 'latest'
 
-    - template: templates\Containerisation\helm\helm-push.yaml@azTemplates
+    - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
