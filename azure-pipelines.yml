@@ -140,6 +140,15 @@ jobs:
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
+    - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+      parameters:
+        azureSubscription: ${{ variables.subscription }}
+        acrName: ${{ variables.acrName }}
+        repositoryName:  ${{ variables.repositoryName }}
+        chartName: 'vh-${{ parameters.git_repo_name }}'
+        chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+
+
 - job: Validate
   dependsOn: Dock
   displayName: Validate Helm Charts
