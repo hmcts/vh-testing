@@ -113,7 +113,7 @@ jobs:
     - bash: |
         az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription DTS-SHAREDSERVICES-STG
       displayName: 'AKS credential Check'
-      
+
     - bash: |
         echo "testing. Repo name ${{ parameters.git_repo_name }}"
         cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
@@ -136,7 +136,7 @@ jobs:
           - '$(Build.BuildNumber)'
           - 'latest'
 
-    - template: templates\Containerisation\helm\helm-push.yaml@azTemplates
+    - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.subscription }}
         acrName: ${{ variables.acrName }}
