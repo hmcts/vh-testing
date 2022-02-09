@@ -111,6 +111,10 @@ jobs:
     - checkout: ${{ parameters.git_repo_name }}
 
     - bash: |
+        az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription DTS-SHAREDSERVICES-STG
+      displayName: 'AKS credential Check'
+      
+    - bash: |
         echo "testing. Repo name ${{ parameters.git_repo_name }}"
         cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
         git switch -c $(Build.SourceBranchName)
