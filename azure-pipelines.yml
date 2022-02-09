@@ -140,49 +140,49 @@ jobs:
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
-#- job: Validate
-#  dependsOn: Dock
-#  displayName: Validate Helm Charts
-#  pool:
-#    vmImage: 'Ubuntu 18.04'
-#  steps:  
-#  - task: Bash@3
-#    displayName: logger
-#    inputs:
-#      targetType: inline
-#      script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
-#
-#
-#  - template: ./steps/charts/validate.yaml
-#    parameters:  
-#      serviceConnection: "DTS-SHAREDSERVICES-STG"
-#      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-#      aksResourceGroup: "ss-stg-00-rg"
-#      aksCluster: "ss-stg-00-aks"
-#      acrName: "sdshmctspublic"
-#      chartName: "vh-${{ parameters.git_repo_name }}"
-#      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-#      chartNamespace: "VH"
-#      chartPath: "./"
-#      helmVersion: "3.5.2"
-#      helmInstallTimeout: "120"
-#      helmTestTimeout: "300"
-#      helmDeleteWait: "0"
-#      helmInstallWait: "0"
-#      valuesFile: "values.yaml"
-#
-#  - template: ./steps/charts/release.yaml
-#    parameters:  
-#      serviceConnection: "DTS-SHAREDSERVICES-STG"
-#      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-#      aksResourceGroup: "ss-stg-00-rg"
-#      aksCluster: "ss-stg-00-aks"
-#      acrName: "sdshmctspublic"
-#      chartName: "vh-${{ parameters.git_repo_name }}"
-#      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-#      chartNamespace: "VH"
-#      chartPath: "./"
-#      helmVersion: "3.5.2"
+- job: Validate
+  dependsOn: Dock
+  displayName: Validate Helm Charts
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  steps:  
+  - task: Bash@3
+    displayName: logger
+    inputs:
+      targetType: inline
+      script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
+
+
+  - template: ./steps/charts/validate.yaml
+    parameters:  
+      serviceConnection: "DTS-SHAREDSERVICES-STG"
+      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+      aksResourceGroup: "ss-stg-00-rg"
+      aksCluster: "ss-stg-00-aks"
+      acrName: "sdshmctspublic"
+      chartName: "vh-${{ parameters.git_repo_name }}"
+      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+      chartNamespace: "VH"
+      chartPath: "./"
+      helmVersion: "3.5.2"
+      helmInstallTimeout: "120"
+      helmTestTimeout: "300"
+      helmDeleteWait: "0"
+      helmInstallWait: "0"
+      valuesFile: "values.yaml"
+
+  - template: ./steps/charts/release.yaml
+    parameters:  
+      serviceConnection: "DTS-SHAREDSERVICES-STG"
+      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+      aksResourceGroup: "ss-stg-00-rg"
+      aksCluster: "ss-stg-00-aks"
+      acrName: "sdshmctspublic"
+      chartName: "vh-${{ parameters.git_repo_name }}"
+      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+      chartNamespace: "VH"
+      chartPath: "./"
+      helmVersion: "3.5.2"
 
   #- template: /steps/charts/validate.yaml@cnp-library
   #  parameters:
