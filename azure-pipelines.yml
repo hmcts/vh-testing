@@ -164,8 +164,8 @@ jobs:
 
   - template: ./steps/charts/validate.yaml
     parameters:  
-      serviceConnection: "DTS-SHAREDSERVICES-STG"
-      registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+      serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
+      registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
       aksResourceGroup: "ss-stg-00-rg"
       aksCluster: "ss-stg-00-aks"
       acrName: "sdshmctspublic"
