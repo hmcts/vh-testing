@@ -101,7 +101,7 @@ jobs:
   displayName: Build and Push Docker Image
   variables:
     - name: subscription
-      value: 'DTS-SHAREDSERVICES-PROD'
+      value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
     - name: acrName
       value: 'sdshmctspublic'
     - name: repositoryName
