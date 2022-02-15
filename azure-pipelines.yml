@@ -163,7 +163,6 @@ jobs:
         kubernetesCluster: "ss-${{ parameters.env }}-01"
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath:
-        repositoryName: ${{ variables.repositoryName }}
         imageTag: 'latest'
 
 - job: Validate
