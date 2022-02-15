@@ -133,20 +133,10 @@ jobs:
         echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$chartVersion"
       displayName: Get Chart Version
 
-    - bash: |
-        echo "gh_app_private_key_file_name: ${file}"
-        echo "gh_app_app_id: ${id}"
-        echo "gh_app_name: ${name}"
-      displayName: 'ECHO'
-      env:
-        name: $(gh_app_name)
-        file: $(gh_app_private_key_file_name)
-        id: $(gh_app_app_id)
-
-    #- template: templates\Github\get-app-token.yaml@azTemplates
-    #  parameters:
-    #    privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
-    #    appId: ${{ variables.gh_app_app_id }}
+    - template: templates\Github\get-app-token.yaml@azTemplates
+      parameters:
+        privateKeyFileName: $(gh_app_private_key_file_name)
+        appId: $(gh_app_app_id)
 
     - template: templates\Github\push-to-helm-chart-repo.yaml@azTemplates
       parameters:
@@ -154,8 +144,8 @@ jobs:
         chartPath: ${{ variables.chartPath }}
         chartVersion: $(chartVersion)
         githubToken: $(githubapp.token)
-        githubUsername: ${{ variables.gh_app_name }}
-        githubEmail: "${{ variables.gh_app_app_id }}+${{ variables.gh_app_name }}[bot]@users.noreply.github.com"
+        githubUsername: $(gh_app_name)
+        githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
   
     - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
       parameters:
