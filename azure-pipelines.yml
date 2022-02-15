@@ -135,8 +135,8 @@ jobs:
 
     - template: templates\Github\get-app-token.yaml@azTemplates
       parameters:
-        privateKeyFileName: ${{ variables.gh-app-private-key-file-name }}
-        appId: ${{ variables.gh-app-app-id }}
+        privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+        appId: ${{ variables.gh_app_app_id }}
 
     - template: templates\Github\push-to-helm-chart-repo.yaml@azTemplates
       parameters:
@@ -144,8 +144,8 @@ jobs:
         chartPath: ${{ variables.chartPath }}
         chartVersion: $(chartVersion)
         githubToken: $(githubapp.token)
-        githubUsername: ${{ variables.gh-app-name }}
-        githubEmail: "${{ variables.gh-app-app-id }}+${{ variables.gh-app-name }}[bot]@users.noreply.github.com"
+        githubUsername: ${{ variables.gh_app_name }}
+        githubEmail: "${{ variables.gh_app_app_id }}+${{ variables.gh_app_name }}[bot]@users.noreply.github.com"
   
     - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
       parameters:
