@@ -96,6 +96,12 @@ parameters:
       - service-web
       - booking-queue-subscriber
       - scheduler-jobs
+  - name: env
+    type: string
+    values:
+      - stg
+      - dev
+
 jobs:
 - job: Dock
   displayName: Build and Push Docker Image
@@ -153,7 +159,7 @@ jobs:
   displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
   variables:
     - name: azureSubscription
-      value: "DTS-SHAREDSERVICES-STG"
+      value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
     - name: acrName
       value: 'sdshmctspublic'
     - name: repositoryName
@@ -162,7 +168,7 @@ jobs:
     - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.subscription }}
-        kubernetesCluster: "ss-stg-01-aks"
+        kubernetesCluster: "ss-${{ parameters.env }}-01"
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath:
         repositoryName: ${{ variables.repositoryName }}
