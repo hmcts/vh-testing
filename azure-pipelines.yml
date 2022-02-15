@@ -134,9 +134,9 @@ jobs:
       displayName: Get Chart Version
 
     - bash: |
-        echo "gh_app_private_key_file_name: ${{ variables.gh_app_private_key_file_name }}"
-        echo "gh_app_app_id: ${{ variables.gh_app_app_id }}"
-        echo "gh_app_name: ${{ variables.gh_app_name }}"
+        echo "gh_app_private_key_file_name: $( variables.gh_app_private_key_file_name )"
+        echo "gh_app_app_id: $( variables.gh_app_app_id)"
+        echo "gh_app_name: $( variables.gh_app_name )"
       displayName: 'ECHO'
 
     #- template: templates\Github\get-app-token.yaml@azTemplates
