@@ -127,7 +127,7 @@ jobs:
       displayName: 'Branch Checkout'
 
     - bash: |
-        chartVersion=$(cat "${{ variables.chartPath }}/chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+        chartVersion=$(cat "${{ variables.chartPath }}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
         echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$chartVersion"
       displayName: Get Chart Version
 
