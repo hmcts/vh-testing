@@ -148,6 +148,25 @@ jobs:
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
+- job: Install
+  dependsOn: Dock
+  displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
+  variables:
+    - name: azureSubscription
+      value: "DTS-SHAREDSERVICES-STG"
+    - name: acrName
+      value: 'sdshmctspublic'
+    - name: repositoryName
+      value: 'vh/${{ parameters.git_repo_name }}'
+  steps:
+    - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+      parameters:
+        azureSubscription: ${{ variables.subscription }}
+        kubernetesCluster: "ss-stg-01-aks"
+        chartName: 'vh-${{ parameters.git_repo_name }}'
+        chartPath:
+        repositoryName: ${{ variables.repositoryName }}
+        imageTag: 'latest'
 
 - job: Validate
   dependsOn: Dock
