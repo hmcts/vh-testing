@@ -160,7 +160,7 @@ jobs:
     - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
       parameters:
         azureSubscription: ${{ variables.azureSubscription }}
-        kubernetesCluster: "ss-${{ parameters.env }}-01-aks"
+        kubernetesCluster: "ss-${{ parameters.env }}-01"
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath:
         imageTag: 'latest'
