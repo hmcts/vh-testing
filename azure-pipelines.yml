@@ -128,6 +128,7 @@ jobs:
 
     - bash: |
         chartVersion=$(cat "${{ variables.chartPath }}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+        echo "chart version ${chartVersion}"
         echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$chartVersion"
       displayName: Get Chart Version
 
