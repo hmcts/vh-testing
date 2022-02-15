@@ -130,7 +130,7 @@ jobs:
         chartVersion=$(cat "${{ variables.chartPath }}/chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
         echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$chartVersion"
       displayName: Get Chart Version
-      
+
     - template: templates\Containerisation\helm\push-to-helm-chart-repo.yaml@azTemplates
       parameters:
         chartName: ${{ variables.chartName }}
@@ -161,24 +161,7 @@ jobs:
         chartName: ${{ variables.chartName }}
         chartPath: ${{ variables.chartPath }}
 
-- job: Install
-  dependsOn: Dock
-  displayName: Deploy Helm chart to ss-${{ parameters.env }}-00-aks
-  variables:
-    - name: azureSubscription
-      value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
-    - name: acrName
-      value: 'sdshmctspublic'
-    - name: repositoryName
-      value: 'vh/${{ parameters.git_repo_name }}'
-  steps:
-    - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.azureSubscription }}
-        kubernetesCluster: "ss-${{ parameters.env }}-01"
-        chartName: 'vh-${{ parameters.git_repo_name }}'
-        chartPath:
-        imageTag: 'latest'
+
 
 - job: Validate
   dependsOn: Dock
