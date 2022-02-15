@@ -146,14 +146,6 @@ jobs:
         chartName: 'vh-${{ parameters.git_repo_name }}'
         chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
-    - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.subscription }}
-        acrName: ${{ variables.acrName }}
-        repositoryName:  ${{ variables.repositoryName }}
-        chartName: 'vh-${{ parameters.git_repo_name }}'
-        chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
-
 - job: Install
   dependsOn: Dock
   displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
