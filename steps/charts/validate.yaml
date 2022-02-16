@@ -15,53 +15,53 @@ parameters:
   helmInstallWait: "0"
   valuesFile: "ci-values.yaml"
 
-steps:
-  - checkout: self
-    clean: true
+  steps:
+    - checkout: self
+      clean: true
 
-  - task: HelmInstaller@1
-    displayName: 'Install Helm ${{parameters.helmVersion}}'
-    inputs:
-      helmVersionToInstall: ${{parameters.helmVersion}}
+    - task: HelmInstaller@1
+      displayName: 'Install Helm ${{parameters.helmVersion}}'
+      inputs:
+        helmVersionToInstall: ${{parameters.helmVersion}}
 
-  - task: AzureCLI@1
-    displayName: "AKS Authenticate"
-    inputs:
-      azureSubscription: ${{ parameters.serviceConnection }}
-      scriptLocation: "inlineScript"
-      inlineScript: az aks get-credentials --admin --overwrite-existing --resource-group ${{ parameters.aksResourceGroup }} --name ${{ parameters.aksCluster }}
+    - task: AzureCLI@1
+      displayName: "AKS Authenticate"
+      inputs:
+        azureSubscription: ${{ parameters.serviceConnection }}
+        scriptLocation: "inlineScript"
+        inlineScript: az aks get-credentials --admin --overwrite-existing --resource-group ${{ parameters.aksResourceGroup }} --name ${{ parameters.aksCluster }}
 
-  - task: AzureCLI@1
-    displayName: "Add custom charts repo"
-    inputs:
-      azureSubscription: ${{ parameters.registryServiceConnection }}
-      scriptLocation: "inlineScript"
-      inlineScript: |
-        helm repo remove hmctspublic # workaround expired auth token
-        helm repo add hmctspublic https://hmctspublic.azurecr.io/helm/v1/repo 
+    - task: AzureCLI@1
+      displayName: "Add custom charts repo"
+      inputs:
+        azureSubscription: ${{ parameters.registryServiceConnection }}
+        scriptLocation: "inlineScript"
+        inlineScript: |
+          helm repo remove hmctspublic # workaround expired auth token
+          helm repo add hmctspublic https://hmctspublic.azurecr.io/helm/v1/repo 
 
-  - script: helm dependency update ${{ parameters.chartPath }}${{ parameters.chartName }}
-    displayName: "Retrieve helm dependencies (if any)"
+    - script: helm dependency update ${{ parameters.chartPath }}${{ parameters.chartName }}
+      displayName: "Retrieve helm dependencies (if any)"
 
-  - script: helm delete --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }} || true
-    displayName: "Delete Previous Test Chart"
+    - script: helm delete --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }} || true
+      displayName: "Delete Previous Test Chart"
 
-  - script: sleep ${{ parameters.helmDeleteWait }}
-    displayName: "Wait for previous chart resources to be deprovisioned"
+    - script: sleep ${{ parameters.helmDeleteWait }}
+      displayName: "Wait for previous chart resources to be deprovisioned"
 
-  - script: |
-      ls -Rla ${{ parameters.chartPath }}${{ parameters.chartName }}
-      helm lint ${{ parameters.chartPath }}${{ parameters.chartName }}
-    displayName: "Helm Lint"
+    - script: |
+        ls -Rla ${{ parameters.chartPath }}${{ parameters.chartName }}
+        helm lint ${{ parameters.chartPath }}${{ parameters.chartName }}
+      displayName: "Helm Lint"
 
-  - script: helm install ${{ parameters.chartReleaseName }} ${{ parameters.chartPath }}${{ parameters.chartName }} --namespace ${{ parameters.chartNamespace }} -f ${{ parameters.valuesFile }} --wait --timeout ${{ parameters.helmInstallTimeout }}s
-    displayName: "Helm Install"
+    - script: helm install ${{ parameters.chartReleaseName }} ${{ parameters.chartPath }}${{ parameters.chartName }} --namespace ${{ parameters.chartNamespace }} -f ${{ parameters.valuesFile }} --wait --timeout ${{ parameters.helmInstallTimeout }}s
+      displayName: "Helm Install"
 
-  - script: sleep ${{ parameters.helmInstallWait }}
-    displayName: "Wait for chart resources to be provisioned"
+    - script: sleep ${{ parameters.helmInstallWait }}
+      displayName: "Wait for chart resources to be provisioned"
 
-  - script: helm test --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }} --logs --timeout ${{ parameters.helmTestTimeout }}s
-    displayName: "Helm Test"
+    - script: helm test --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }} --logs --timeout ${{ parameters.helmTestTimeout }}s
+      displayName: "Helm Test"
 
-  - script: helm delete --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }}
-    displayName: "Delete test Chart"
+    - script: helm delete --namespace ${{ parameters.chartNamespace }} ${{ parameters.chartReleaseName }}
+      displayName: "Delete test Chart"
