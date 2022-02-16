@@ -145,7 +145,7 @@ jobs:
         chartName: ${{ variables.chartName }}
         chartPath: ${{ variables.chartPath }}
         chartVersion: $(chartVersion)
-        githubToken: $(githubapp.token)
+        githubToken: $(githubappinstall.token)
         githubUsername: $(gh_app_name)
         githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
   
