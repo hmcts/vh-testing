@@ -101,126 +101,133 @@ parameters:
     values:
       - stg
       - dev
+      
+stages:
 
-jobs:
-- job: Dock
-  displayName: Build and Push Docker Image
-  variables:
-    - name: subscription
-      value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
-    - name: acrName
-      value: 'sdshmctspublic'
-    - name: repositoryName
-      value: 'vh/${{ parameters.git_repo_name }}'
-  steps:
-    - checkout: self
-    - checkout: ${{ parameters.git_repo_name }}
+  - stage: Dock
+    displayName: Build and Push Docker Image
+    variables:
+      - name: subscription
+        value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+      - name: acrName
+        value: 'sdshmctspublic'
+      - name: repositoryName
+        value: 'vh/${{ parameters.git_repo_name }}'
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+          - checkout: ${{ parameters.git_repo_name }}
+        
+          - bash: |
+              echo "testing. Repo name ${{ parameters.git_repo_name }}"
+              cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
+              git switch -c $(Build.SourceBranchName)
+            displayName: 'Branch Checkout'
+        
+          - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+            
+          - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
+              imageTags:
+                - '$(Build.BuildNumber)'
+                - 'latest'
+              
+          - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
-    - bash: |
-        echo "testing. Repo name ${{ parameters.git_repo_name }}"
-        cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
-        git switch -c $(Build.SourceBranchName)
-      displayName: 'Branch Checkout'
-  
-    - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.subscription }}
-        acrName: ${{ variables.acrName }}
-        repositoryName:  ${{ variables.repositoryName }}
+  - stage: Install
+    dependsOn: Dock
+    displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
+    variables:
+      - name: azureSubscription
+        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+      - name: acrName
+        value: 'sdshmctspublic'
+      - name: repositoryName
+        value: 'vh/${{ parameters.git_repo_name }}'
+    jobs:
+      - job:
+        steps:
+          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.azureSubscription }}
+              kubernetesCluster: "ss-${{ parameters.env }}-01"
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath:
+              imageTag: 'latest'
 
-    - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.subscription }}
-        acrName: ${{ variables.acrName }}
-        repositoryName:  ${{ variables.repositoryName }}
-        imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
-        imageTags:
-          - '$(Build.BuildNumber)'
-          - 'latest'
-
-    - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.subscription }}
-        acrName: ${{ variables.acrName }}
-        repositoryName:  ${{ variables.repositoryName }}
-        chartName: 'vh-${{ parameters.git_repo_name }}'
-        chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
-
-- job: Install
-  dependsOn: Dock
-  displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
-  variables:
-    - name: azureSubscription
-      value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
-    - name: acrName
-      value: 'sdshmctspublic'
-    - name: repositoryName
-      value: 'vh/${{ parameters.git_repo_name }}'
-  steps:
-    - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-      parameters:
-        azureSubscription: ${{ variables.azureSubscription }}
-        kubernetesCluster: "ss-${{ parameters.env }}-01"
-        chartName: 'vh-${{ parameters.git_repo_name }}'
-        chartPath:
-        imageTag: 'latest'
-
-- job: Validate
-  dependsOn: Dock
-  displayName: Validate Helm Charts
-  pool:
-    vmImage: 'Ubuntu 18.04'
-  steps:  
-  - task: Bash@3
-    displayName: logger
-    inputs:
-      targetType: inline
-      script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
-
-
-  - template: ./steps/charts/validate.yaml
-    parameters:  
-      serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
-      registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
-      aksResourceGroup: "ss-stg-00-rg"
-      aksCluster: "ss-stg-00-aks"
-      acrName: "sdshmctspublic"
-      chartName: "vh-${{ parameters.git_repo_name }}"
-      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-      chartNamespace: "VH"
-      chartPath: "./"
-      helmVersion: "3.5.2"
-      helmInstallTimeout: "120"
-      helmTestTimeout: "300"
-      helmDeleteWait: "0"
-      helmInstallWait: "0"
-      valuesFile: "values.yaml"
-
-  - template: ./steps/charts/release.yaml
-    parameters:  
-      serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
-      registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
-      aksResourceGroup: "ss-stg-00-rg"
-      aksCluster: "ss-stg-00-aks"
-      acrName: "sdshmctspublic"
-      chartName: "vh-${{ parameters.git_repo_name }}"
-      chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-      chartNamespace: "VH"
-      chartPath: "./"
-      helmVersion: "3.5.2"
-
-  #- template: /steps/charts/validate.yaml@cnp-library
-  #  parameters:
-  #    chartName: vh-${{ parameters.git_repo_name }}
-  #    chartReleaseName: ${{ parameters.git_repo_name }}
-  #    chartNamespace: "vh"
-  #    chartPath: "$(System.DefaultWorkingDirectory)/vh-${{ parameters.git_repo_name }}/charts/"
-  #    helmInstallTimeout: "500"
-  #    serviceConnection: "DTS-SHAREDSERVICES-PROD"
-  #    registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
-  #    aksResourceGroup: "ss-prod-00-rg"
-  #    aksCluster: "ss-prod-00-aks"
-  #    acrName: "sdshmctspublic"
+  - stage: Validate
+    dependsOn: Dock
+    displayName: Validate Helm Charts
+    pool:
+      vmImage: 'Ubuntu 18.04'
+    jobs:
+      - job:
+        steps:  
+        - task: Bash@3
+          displayName: logger
+          inputs:
+            targetType: inline
+            script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
+      
+      
+      - template: ./steps/charts/validate.yaml
+        parameters:  
+          serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
+          registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
+          aksResourceGroup: "ss-stg-00-rg"
+          aksCluster: "ss-stg-00-aks"
+          acrName: "sdshmctspublic"
+          chartName: "vh-${{ parameters.git_repo_name }}"
+          chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+          chartNamespace: "VH"
+          chartPath: "./"
+          helmVersion: "3.5.2"
+          helmInstallTimeout: "120"
+          helmTestTimeout: "300"
+          helmDeleteWait: "0"
+          helmInstallWait: "0"
+          valuesFile: "values.yaml"
+            
+      - template: ./steps/charts/release.yaml
+        parameters:  
+          serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
+          registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
+          aksResourceGroup: "ss-stg-00-rg"
+          aksCluster: "ss-stg-00-aks"
+          acrName: "sdshmctspublic"
+          chartName: "vh-${{ parameters.git_repo_name }}"
+          chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+          chartNamespace: "VH"
+          chartPath: "./"
+          helmVersion: "3.5.2"
+      
+    #- template: /steps/charts/validate.yaml@cnp-library
+    #  parameters:
+    #    chartName: vh-${{ parameters.git_repo_name }}
+    #    chartReleaseName: ${{ parameters.git_repo_name }}
+    #    chartNamespace: "vh"
+    #    chartPath: "$(System.DefaultWorkingDirectory)/vh-${{ parameters.git_repo_name }}/charts/"
+    #    helmInstallTimeout: "500"
+    #    serviceConnection: "DTS-SHAREDSERVICES-PROD"
+    #    registryServiceConnection: "DTS-SHAREDSERVICES-PROD"
+    #    aksResourceGroup: "ss-prod-00-rg"
+    #    aksCluster: "ss-prod-00-aks"
+    #    acrName: "sdshmctspublic"
 
 
 
