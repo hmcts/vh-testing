@@ -129,12 +129,6 @@ jobs:
         git switch -c $(Build.SourceBranchName)
       displayName: 'Branch Checkout'
 
-    - bash: |
-        chartVersion=$(cat "${{ variables.chartPath }}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
-        echo "chart version ${chartVersion}"
-        echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$chartVersion"
-      displayName: Get Chart Version
-
     - template: templates\Github\get-app-token.yaml@azTemplates
       parameters:
         privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
