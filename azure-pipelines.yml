@@ -184,7 +184,7 @@ stages:
             targetType: inline
             script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
       
-      
+      - job:
       - template: ./steps/charts/validate.yaml
         parameters:  
           serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
