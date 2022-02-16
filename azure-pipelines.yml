@@ -170,51 +170,51 @@ stages:
               chartPath:
               imageTag: 'latest'
 
-  - stage: Validate
-    dependsOn: Dock
-    displayName: Validate Helm Charts
-    pool:
-      vmImage: 'Ubuntu 18.04'
-    jobs:
-      - job:
-        steps:  
-        - task: Bash@3
-          displayName: logger
-          inputs:
-            targetType: inline
-            script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
-      
-      - job:
-      - template: ./steps/charts/validate.yaml
-        parameters:  
-          serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
-          registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
-          aksResourceGroup: "ss-stg-00-rg"
-          aksCluster: "ss-stg-00-aks"
-          acrName: "sdshmctspublic"
-          chartName: "vh-${{ parameters.git_repo_name }}"
-          chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-          chartNamespace: "VH"
-          chartPath: "./"
-          helmVersion: "3.5.2"
-          helmInstallTimeout: "120"
-          helmTestTimeout: "300"
-          helmDeleteWait: "0"
-          helmInstallWait: "0"
-          valuesFile: "values.yaml"
-            
-      - template: ./steps/charts/release.yaml
-        parameters:  
-          serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
-          registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
-          aksResourceGroup: "ss-stg-00-rg"
-          aksCluster: "ss-stg-00-aks"
-          acrName: "sdshmctspublic"
-          chartName: "vh-${{ parameters.git_repo_name }}"
-          chartReleaseName: "vh-${{ parameters.git_repo_name }}"
-          chartNamespace: "VH"
-          chartPath: "./"
-          helmVersion: "3.5.2"
+  #- stage: Validate
+  #  dependsOn: Dock
+  #  displayName: Validate Helm Charts
+  #  pool:
+  #    vmImage: 'Ubuntu 18.04'
+  #  jobs:
+  #    - job:
+  #      steps:  
+  #      - task: Bash@3
+  #        displayName: logger
+  #        inputs:
+  #          targetType: inline
+  #          script: pwd && echo "Our contents :" && ls -ltr $(System.DefaultWorkingDirectory)  
+  #    
+  #    
+  #    - template: ./steps/charts/validate.yaml
+  #      parameters:  
+  #        serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
+  #        registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
+  #        aksResourceGroup: "ss-stg-00-rg"
+  #        aksCluster: "ss-stg-00-aks"
+  #        acrName: "sdshmctspublic"
+  #        chartName: "vh-${{ parameters.git_repo_name }}"
+  #        chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+  #        chartNamespace: "VH"
+  #        chartPath: "./"
+  #        helmVersion: "3.5.2"
+  #        helmInstallTimeout: "120"
+  #        helmTestTimeout: "300"
+  #        helmDeleteWait: "0"
+  #        helmInstallWait: "0"
+  #        valuesFile: "values.yaml"
+  #          
+  #    - template: ./steps/charts/release.yaml
+  #      parameters:  
+  #        serviceConnection: "DTS-SHAREDSERVICES-STG-Video Hearings"
+  #        registryServiceConnection: "DTS-SHAREDSERVICES-PROD-Video Hearings"
+  #        aksResourceGroup: "ss-stg-00-rg"
+  #        aksCluster: "ss-stg-00-aks"
+  #        acrName: "sdshmctspublic"
+  #        chartName: "vh-${{ parameters.git_repo_name }}"
+  #        chartReleaseName: "vh-${{ parameters.git_repo_name }}"
+  #        chartNamespace: "VH"
+  #        chartPath: "./"
+  #        helmVersion: "3.5.2"
       
     #- template: /steps/charts/validate.yaml@cnp-library
     #  parameters:
