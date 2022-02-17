@@ -53,7 +53,7 @@ resources:
     - repository: admin-web
       type: github
       name: hmcts/vh-admin-web
-      ref: refs/heads/dockerfile-fix
+      ref: refs/heads/master
       endpoint: hmcts
 
     - repository: service-web
