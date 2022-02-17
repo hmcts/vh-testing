@@ -1,0 +1,192 @@
+trigger: none
+
+resources:
+  repositories:
+    - repository: azTemplates
+      type: github
+      name: hmcts/azure-devops-templates
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: user-api
+      type: github
+      name: hmcts/vh-user-api
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: video-api
+      type: github
+      name: hmcts/vh-video-api
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: video-web
+      type: github
+      name: hmcts/vh-video-web
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: bookings-api
+      type: github
+      name: hmcts/vh-bookings-api
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: notification-api
+      type: github
+      name: hmcts/vh-notification-api
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: test-web
+      type: github
+      name: hmcts/vh-test-web
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: test-api
+      type: github
+      name: hmcts/vh-test-api
+      ref: refs/heads/VIH-7245-test-api
+      endpoint: hmcts
+
+    - repository: admin-web
+      type: github
+      name: hmcts/vh-admin-web
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: service-web
+      type: github
+      name: hmcts/vh-service-web
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: booking-queue-subscriber
+      type: github
+      name: hmcts/vh-booking-queue-subscriber
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: scheduler-jobs
+      type: github
+      name: hmcts/vh-scheduler-jobs
+      ref: refs/heads/master
+      endpoint: hmcts
+
+    - repository: cnp-library
+      type: github
+      name: hmcts/cnp-azuredevops-libraries
+      ref: refs/heads/master
+      endpoint: hmcts
+
+parameters:
+  - name: git_repo_name
+    displayName: Git Repo Name
+    type: string
+    values:
+      - user-api
+      - video-api
+      - video-web
+      - bookings-api
+      - notification-api
+      - test-web
+      - test-api
+      - admin-web
+      - service-web
+      - booking-queue-subscriber
+      - scheduler-jobs
+  - name: env
+    type: string
+    default: dev
+    values:
+      - dev
+      - demo
+  - name: cluster
+    displayName: Cluster ID to use
+    type: string
+    values:
+      - 00
+      - 01
+
+      
+stages:
+
+  - stage: Dock
+    displayName: Build and Push Docker Image
+    variables:
+      - template: variables/shared.yaml
+        parameters:
+          env: ${{ parameters.env }}
+          git_repo_name: ${{ parameters.git_repo_name }}
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+          - checkout: ${{ parameters.git_repo_name }}
+        
+          - bash: |
+              echo "testing. Repo name ${{ parameters.git_repo_name }}"
+              cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
+              git switch -c $(Build.SourceBranchName)
+            displayName: 'Branch Checkout'
+        
+          - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+            
+          - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
+              imageTags:
+                - '${{ variables.prTagName }}'
+
+  - stage: Install
+    displayName: Deploy Helm chart to ${{ variables.clusterName }}
+    variables:
+      - template: variables/shared.yaml
+        parameters:
+          env: ${{ parameters.env }}
+          git_repo_name: ${{ parameters.git_repo_name }}
+    jobs:
+      - job:
+        steps:
+          - bash: |
+              export IMAGE_NAME="'${imageName}'"
+              export SERVICE_FQDN="${fqdn}"
+                            
+              valuesEnvTemplate="./charts/vh-testing/values.${env}.template.yaml"
+              valuesEnv="./charts/vh-testing/values.${env}.yaml"
+              
+              if test -f "$valuesEnvTemplate"; then
+                envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+              fi
+            displayName: Set Environment Values
+            env:
+              imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
+              fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
+              env: ${{ parameters.env }}
+  
+          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              kubernetesCluster: "${{ variables.clusterName }}"
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath: '${{ variables.chartPath }}'
+              imageTag: '${{ variables.prTagName }}'
+
+          - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
+            parameters:
+              subscriptionName: ${{ variables.azureSubscription }}
+              aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+              aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
+              aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+              dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}"
+              dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
+              zoneName: ${{ variables.dnsZone }}
+              recordName: ${{ variables.dnsRecordName }}
