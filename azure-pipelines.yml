@@ -112,7 +112,7 @@ stages:
     displayName: Build and Push Docker Image
     variables:
       - name: subscription
-        value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+        value: 'DTS-SHAREDSERVICES-PROD'
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName
