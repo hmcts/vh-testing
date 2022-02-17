@@ -101,6 +101,10 @@ parameters:
     values:
       - stg
       - dev
+  - name: acrDeploy
+    displayName: Deploy from ACR?
+    type: boolean
+    default: false
       
 stages:
 
@@ -169,13 +173,14 @@ stages:
     jobs:
       - job:
         steps:
-          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-            parameters:
-              azureSubscription: ${{ variables.azureSubscription }}
-              kubernetesCluster: "ss-${{ parameters.env }}-01"
-              chartName: 'vh-${{ parameters.git_repo_name }}'
-              chartPath:
-              imageTag: 'latest'
+          - ${{ if eq(parameters.acrDeploy, true)}}:
+            - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+              parameters:
+                azureSubscription: ${{ variables.azureSubscription }}
+                kubernetesCluster: "ss-${{ parameters.env }}-01"
+                chartName: 'vh-${{ parameters.git_repo_name }}'
+                chartPath: 'vh-${{ parameters.git_repo_name }}:latest'
+                imageTag: 'latest'
 
   #- stage: Validate
   #  dependsOn: Dock
