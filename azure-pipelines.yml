@@ -53,7 +53,7 @@ resources:
     - repository: admin-web
       type: github
       name: hmcts/vh-admin-web
-      ref: refs/heads/VIH-7247-admin-web-sds
+      ref: refs/heads/dockerfile-fix
       endpoint: hmcts
 
     - repository: service-web
