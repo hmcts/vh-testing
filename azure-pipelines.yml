@@ -2,71 +2,83 @@ trigger: none
 
 resources:
   repositories:
+    - repository: azTemplates
+      type: github
+      name: hmcts/azure-devops-templates
+      ref: refs/heads/helm-install
+      endpoint: hmcts
+
     - repository: user-api
       type: github
       name: hmcts/vh-user-api
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: video-api
       type: github
       name: hmcts/vh-video-api
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: video-web
       type: github
       name: hmcts/vh-video-web
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: bookings-api
       type: github
       name: hmcts/vh-bookings-api
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: notification-api
       type: github
       name: hmcts/vh-notification-api
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: test-web
       type: github
       name: hmcts/vh-test-web
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: test-api
       type: github
       name: hmcts/vh-test-api
-      ref: refs/heads/master
-      endpoint: hmcts_shaed
+      ref: refs/heads/VIH-7245-test-api
+      endpoint: hmcts
 
     - repository: admin-web
       type: github
       name: hmcts/vh-admin-web
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: service-web
       type: github
       name: hmcts/vh-service-web
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: booking-queue-subscriber
       type: github
       name: hmcts/vh-booking-queue-subscriber
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
 
     - repository: scheduler-jobs
       type: github
       name: hmcts/vh-scheduler-jobs
       ref: refs/heads/master
-      endpoint: hmcts_shaed
+      endpoint: hmcts
+
+    - repository: cnp-library
+      type: github
+      name: hmcts/cnp-azuredevops-libraries
+      ref: refs/heads/master
+      endpoint: hmcts
 
 parameters:
   - name: git_repo_name
@@ -84,38 +96,90 @@ parameters:
       - service-web
       - booking-queue-subscriber
       - scheduler-jobs
+  - name: env
+    type: string
+    values:
+      - stg
+      - dev
+  - name: acrDeploy
+    displayName: Deploy from ACR?
+    type: boolean
+    default: false
+      
+stages:
 
-steps:
-  - checkout: self
-  - checkout: ${{ parameters.git_repo_name }}
+  - stage: Dock
+    displayName: Build and Push Docker Image
+    variables:
+      - name: subscription
+        value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+      - name: k8sSubscription
+        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+      - name: acrName
+        value: 'sdshmctspublic'
+      - name: repositoryName
+        value: 'vh/${{ parameters.git_repo_name }}'
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+          - checkout: ${{ parameters.git_repo_name }}
+        
+          - bash: |
+              echo "testing. Repo name ${{ parameters.git_repo_name }}"
+              cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
+              git switch -c $(Build.SourceBranchName)
+            displayName: 'Branch Checkout'
+        
+          - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+            
+          - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
+              imageTags:
+                - '$(Build.BuildNumber)'
+                - 'latest'
+              
+          - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
 
-  - bash: |
-      echo "testing"
-      cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
-      git switch -c $(Build.SourceBranchName)
-    displayName: 'Branch Checkout'
+          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.k8sSubscription }}
+              kubernetesCluster: "ss-${{ parameters.env }}-01"
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+              imageTag: '$(Build.BuildNumber)'
 
-  - task: DockerCompose@0
-    displayName: 'Run a Docker Compose Build'
-    inputs:
-      azureSubscription: 'DTS-SHAREDSERVICES-PROD'
-      azureContainerRegistry: '{"loginServer":"sdshmctspublic.azurecr.io", "id" : "/subscriptions/5ca62022-6aa2-4cee-aaa7-e7536c8d566c/resourceGroups/sds-acr-rg/providers/Microsoft.ContainerRegistry/registries/sdshmctspublic"}'
-      projectName: 'sdshmctspublic/vh/${{ parameters.git_repo_name }}'
-      qualifyImageNames: false
-      dockerComposeCommand: build
-
-  - task: AzureCLI@1
-    displayName: 'Docker Tasks'
-    inputs:
-        azureSubscription: 'DTS-SHAREDSERVICES-PROD'
-        addSpnToEnvironment: true
-        scriptLocation: inlineScript
-        failOnStandardError: 'true'
-        inlineScript: |   
-          REPOTRIM="$(echo ${{ parameters.git_repo_name }} | sed 's/-//g')"
-          docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
-          docker tag $REPOTRIM:latest sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
-          docker images
-          az acr login --name sdshmctspublic
-          docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:$(Build.BuildNumber)
-          docker push sdshmctspublic.azurecr.io/vh/${{ parameters.git_repo_name }}:latest
+  - stage: Install
+    displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
+    variables:
+      - name: azureSubscription
+        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+      - name: acrName
+        value: 'sdshmctspublic'
+      - name: repositoryName
+        value: 'vh/${{ parameters.git_repo_name }}'
+    jobs:
+      - job:
+        steps:
+          - ${{ if eq(parameters.acrDeploy, true)}}:
+            - template: templates\Containerisation\helm\helm-deploy-from-acr.yaml@azTemplates
+              parameters:
+                azureSubscription: ${{ variables.azureSubscription }}
+                kubernetesCluster: "ss-${{ parameters.env }}-01"
+                chartName: 'vh-${{ parameters.git_repo_name }}'
+                chartPath: 'vh-${{ parameters.git_repo_name }}:latest'
+                imageTag: 'latest'
