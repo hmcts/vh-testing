@@ -112,7 +112,7 @@ stages:
     displayName: Build and Push Docker Image
     variables:
       - name: subscription
-        value: 'DTS-SHAREDSERVICES-PROD'
+        value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName
@@ -165,7 +165,7 @@ stages:
     displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
     variables:
       - name: azureSubscription
-        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName
