@@ -113,6 +113,8 @@ stages:
     variables:
       - name: subscription
         value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+      - name: k8sSubscription
+        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName
@@ -155,7 +157,7 @@ stages:
 
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.k8sSubscription }}
               kubernetesCluster: "ss-${{ parameters.env }}-01"
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
