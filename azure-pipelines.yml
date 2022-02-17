@@ -101,6 +101,12 @@ parameters:
     values:
       - stg
       - dev
+  - name: cluster
+    displayName: Cluster ID to use
+    type: string
+    values:
+      - 00
+      - 01
       
 stages:
 
@@ -165,6 +171,8 @@ stages:
         value: "pr-$(System.PullRequest.PullRequestId)"
       - name: dnsZone
         value: ${{ parameters.env }}.platform.hmcts.net
+      - name: dnsRecordName
+        value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.tagName }}
     jobs:
       - job:
         steps:
@@ -181,7 +189,7 @@ stages:
             displayName: Set Environment Values
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.tagName }}
-              fqdn: ${{ parameters.git_repo_name }}-dotnet-${{ variables.tagName }}.${{ variables.dnsZone }}
+              fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
   
                       
@@ -192,7 +200,17 @@ stages:
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath:
               imageTag: 'latest'
-          - template: setupDNS
+
+          - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
+            parameters:
+              subscriptionName: ${{ variables.azureSubscription }}
+              aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+              aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
+              aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+              dnsSubscriptionName: "DTS-CFTPTL-INTSVC"
+              dnsResourceGroupName: "core-infra-intsvc-rg"
+              zoneName: ${{ variables.dnsZone }}
+              recordName: ${{ variables.dnsRecordName }}
 
   #- stage: Validate
   #  dependsOn: Dock
