@@ -1,0 +1,24 @@
+parameters:
+  - name: env
+    type: string
+  - name: git_repo_name
+    type: string
+
+variables:
+  - name: subscription
+    value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+  - name: acrName
+    value: 'sdshmctspublic'
+  - name: repositoryName
+    value: 'vh/${{ parameters.git_repo_name }}'
+  
+  - name: prTagName
+    value: "pr-$(System.PullRequest.PullRequestId)"
+  - name: releaseTagName
+    value: "prod-$(Build.SourceBranchName)"
+
+  - name: clusterName
+    value: "ss-${{ parameters.env }}-00-aks"
+
+  - name: chartPath
+    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
