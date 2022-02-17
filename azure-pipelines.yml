@@ -161,27 +161,27 @@ stages:
               chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
               imageTag: '$(Build.BuildNumber)'
 
-  - stage: Install
-    displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
-    variables:
-      - name: azureSubscription
-        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
-      - name: acrName
-        value: 'sdshmctspublic'
-      - name: repositoryName
-        value: 'vh/${{ parameters.git_repo_name }}'
-    jobs:
-      - job:
-        steps:
-          - ${{ if eq(parameters.acrDeploy, true)}}:
-            - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-              parameters:
-                azureSubscription: ${{ variables.azureSubscription }}
-                kubernetesCluster: "ss-${{ parameters.env }}-01"
-                chartName: 'vh-${{ parameters.git_repo_name }}'
-                chartPath: 'vh-${{ parameters.git_repo_name }}:latest'
-                imageTag: 'latest'
-
+  #- stage: Install
+  #  displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
+  #  variables:
+  #    - name: azureSubscription
+  #      value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+  #    - name: acrName
+  #      value: 'sdshmctspublic'
+  #    - name: repositoryName
+  #      value: 'vh/${{ parameters.git_repo_name }}'
+  #  jobs:
+  #    - job:
+  #      steps:
+  #        - ${{ if eq(parameters.acrDeploy, true)}}:
+  #          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+  #            parameters:
+  #              azureSubscription: ${{ variables.azureSubscription }}
+  #              kubernetesCluster: "ss-${{ parameters.env }}-01"
+  #              chartName: 'vh-${{ parameters.git_repo_name }}'
+  #              chartPath: 'vh-${{ parameters.git_repo_name }}:latest'
+  #              imageTag: 'latest'
+#
   #- stage: Validate
   #  dependsOn: Dock
   #  displayName: Validate Helm Charts
