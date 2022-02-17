@@ -174,7 +174,7 @@ stages:
       - job:
         steps:
           - ${{ if eq(parameters.acrDeploy, true)}}:
-            - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            - template: templates\Containerisation\helm\helm-deploy-from-acr.yaml@azTemplates
               parameters:
                 azureSubscription: ${{ variables.azureSubscription }}
                 kubernetesCluster: "ss-${{ parameters.env }}-01"
