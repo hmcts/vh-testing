@@ -163,7 +163,7 @@ stages:
               chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts'
               fullChartName: 'vh-${{ parameters.git_repo_name }}/vh-${{ parameters.git_repo_name }}-$(Build.BuildNumber).tgz'
               imageTag: '$(Build.BuildNumber)'
-              valuesFile: 'values.${{ parameters.env }}.yaml'
+              valuesFile: 'vh-${{ parameters.git_repo_name }}/values.${{ parameters.env }}.yaml'
 
   - stage: Install
     displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
