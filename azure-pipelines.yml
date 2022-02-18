@@ -158,7 +158,8 @@ stages:
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
               azureSubscription: ${{ variables.k8sSubscription }}
-              kubernetesCluster: "ss-${{ parameters.env }}-01"
+              kubernetesRG: "ss-${{ parameters.env }}-01-rg"
+              kubernetesCluster: "ss-${{ parameters.env }}-01-aks"
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/'
               fullChartName: 'vh-${{ parameters.git_repo_name }}/vh-${{ parameters.git_repo_name }}-$(Build.BuildNumber).tgz'
