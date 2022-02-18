@@ -29,7 +29,7 @@ resources:
     - repository: bookings-api
       type: github
       name: hmcts/vh-bookings-api
-      ref: refs/heads/master
+      ref: refs/heads/chart-update
       endpoint: hmcts
 
     - repository: notification-api
