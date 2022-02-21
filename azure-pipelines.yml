@@ -129,7 +129,7 @@ stages:
               echo "testing. Repo name ${{ parameters.git_repo_name }}"
               cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
               git status
-              git fetch --prune --progress origin master
+              git log -n 1
               echo "we are currently in:" && pwd
               ls -ltr
               git switch -c $(Build.SourceBranchName)            
