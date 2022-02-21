@@ -17,7 +17,7 @@ resources:
     - repository: video-api
       type: github
       name: hmcts/vh-video-api
-      ref: refs/heads/master
+      ref: refs/heads/sds-migration-chart-setup
       endpoint: hmcts
 
     - repository: video-web
