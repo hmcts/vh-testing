@@ -128,8 +128,8 @@ stages:
           - bash: |
               echo "testing. Repo name ${{ parameters.git_repo_name }}"
               cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
-              git switch -c $(Build.SourceBranchName)
               git fetch
+              git switch -c $(Build.SourceBranchName)              
             displayName: 'Branch Checkout'
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
