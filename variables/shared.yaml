@@ -22,6 +22,10 @@ variables:
 
   - name: chartPath
     value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+  - name: envValuesPath
+    value: "${{ variables.chartPath }}/values.${env}.yaml"
+  - name: envValuesTemplatePath
+    value: "${{ variables.chartPath }}/values.${env}.template.yaml"
     
   - name: dnsZoneSubscription
     value: "DTS-CFTPTL-INTSVC"

@@ -153,6 +153,8 @@ stages:
         parameters:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
+      - name: envValuesPath
+        value: "./charts/vh-testing/values.${env}.yaml"
     jobs:
       - job:
         steps:
@@ -160,8 +162,8 @@ stages:
               export IMAGE_NAME="'${imageName}'"
               export SERVICE_FQDN="${fqdn}"
                             
-              valuesEnvTemplate="./charts/vh-testing/values.${env}.template.yaml"
-              valuesEnv="./charts/vh-testing/values.${env}.yaml"
+              valuesEnvTemplate="${{ variables.envValuesTemplatePath }}"
+              valuesEnv="${{ variables.envValuesPath }}"
               
               if test -f "$valuesEnvTemplate"; then
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
@@ -179,6 +181,7 @@ stages:
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
+              additionalArgs: '-f ${{ variables.envValuesPath }}'
 
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
             parameters:
