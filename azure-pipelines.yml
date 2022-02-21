@@ -132,7 +132,7 @@ stages:
               ls -ltr
               git switch -c $(Build.SourceBranchName)    
               git status
-              git fetch          
+              git fetch --prune --progress origin          
             displayName: 'Branch Checkout'
 
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
