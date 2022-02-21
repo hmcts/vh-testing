@@ -11,7 +11,7 @@ resources:
     - repository: user-api
       type: github
       name: hmcts/vh-user-api
-      ref: refs/heads/master
+      ref: refs/heads/feature/VIH-7155_AksSecretFileProvider
       endpoint: hmcts
 
     - repository: video-api
