@@ -130,9 +130,9 @@ stages:
               cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
               echo "we are currently in:" && pwd
               ls -ltr
+              git switch -c $(Build.SourceBranchName)    
               git status
-              git fetch
-              git switch -c $(Build.SourceBranchName)              
+              git fetch          
             displayName: 'Branch Checkout'
 
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
