@@ -128,13 +128,12 @@ stages:
           - bash: |
               echo "testing. Repo name ${{ parameters.git_repo_name }}"
               cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
+              echo "we are currently in:" && pwd
+              ls -ltr
+              git status
               git fetch
               git switch -c $(Build.SourceBranchName)              
             displayName: 'Branch Checkout'
-        
-          - bash: | 
-              git status && git branch
-            displayName: Check git status
 
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
