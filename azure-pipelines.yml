@@ -132,6 +132,10 @@ stages:
               git switch -c $(Build.SourceBranchName)              
             displayName: 'Branch Checkout'
         
+          - bash: | 
+              git status && git branch
+            displayName: Check git status
+
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
               azureSubscription: ${{ variables.subscription }}
