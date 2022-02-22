@@ -13,7 +13,7 @@ variables:
     value: 'vh/${{ parameters.git_repo_name }}'
   
   - name: prTagName
-    value: "pr-$(System.PullRequest.PullRequestId)"
+    value: "pr-666" ## TODO: change back to 'pr-$(System.PullRequest.PullRequestId)'
   - name: releaseTagName
     value: "prod-$(Build.SourceBranchName)"
 
