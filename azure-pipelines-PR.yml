@@ -147,6 +147,7 @@ stages:
                 - '${{ variables.prTagName }}'
 
   - stage: Install
+    dependsOn: []
     displayName: Deploy Helm chart to ${{ variables.clusterName }}
     variables:
       - template: variables/shared.yaml
