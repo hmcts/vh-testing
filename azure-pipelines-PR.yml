@@ -5,7 +5,7 @@ resources:
     - repository: azTemplates
       type: github
       name: hmcts/azure-devops-templates
-      ref: refs/heads/private-dns
+      ref: refs/heads/master
       endpoint: hmcts
 
     - repository: user-api
