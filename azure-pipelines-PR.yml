@@ -112,7 +112,39 @@ parameters:
       
 stages:
 
-
+  - stage: Dock
+    displayName: Build and Push Docker Image
+    variables:
+      - template: variables/shared.yaml
+        parameters:
+          env: ${{ parameters.env }}
+          git_repo_name: ${{ parameters.git_repo_name }}
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+          - checkout: ${{ parameters.git_repo_name }}
+        
+          - bash: |
+              echo "testing. Repo name ${{ parameters.git_repo_name }}"
+              cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
+              git switch -c $(Build.SourceBranchName)
+            displayName: 'Branch Checkout'
+        
+          - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+            
+          - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              acrName: ${{ variables.acrName }}
+              repositoryName:  ${{ variables.repositoryName }}
+              imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
+              imageTags:
+                - '${{ variables.prTagName }}'
 
   - stage: Install
     dependsOn: []
@@ -137,9 +169,15 @@ stages:
               valuesEnv="${{ variables.envValuesPath }}"
               
               if test -f "$valuesEnvTemplate"; then
+                echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+
+                envValueArg="-f $valuesEnv"
+                "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
+              else
+                echo "No Environment File"
               fi
-            displayName: Set Environment Values
+            displayName: Set Environment Values file
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
@@ -174,5 +212,5 @@ stages:
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
-              additionalArgs: '-f ${{ variables.envValuesPath }}'
+              additionalArgs: "$(envValuePath)"
 
