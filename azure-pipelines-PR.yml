@@ -173,15 +173,6 @@ stages:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
-  
-          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
-            parameters:
-              azureSubscription: ${{ variables.subscription }}
-              kubernetesCluster: "${{ variables.clusterName }}"
-              chartName: 'vh-${{ parameters.git_repo_name }}'
-              chartPath: '${{ variables.chartPath }}'
-              imageTag: '${{ variables.prTagName }}'
-              additionalArgs: '-f ${{ variables.envValuesPath }}'
 
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
             parameters:
@@ -193,3 +184,12 @@ stages:
               dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
               zoneName: ${{ variables.dnsZone }}
               recordName: ${{ variables.dnsRecordName }}
+  
+          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.subscription }}
+              kubernetesCluster: "${{ variables.clusterName }}"
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath: '${{ variables.chartPath }}'
+              imageTag: '${{ variables.prTagName }}'
+              additionalArgs: '-f ${{ variables.envValuesPath }}'
