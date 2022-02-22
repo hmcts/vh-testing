@@ -174,6 +174,14 @@ stages:
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
 
+          - bash: |
+              VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+              echo "Chart Version: $VERSION"
+              echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$VERSION"
+            displayName: Get Chart Version
+            env:
+              chartPath: ${{ variables.chartPath }}
+
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml@azTemplates
             parameters:
               subscriptionName: ${{ variables.azureSubscription }}
@@ -187,9 +195,13 @@ stages:
   
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
+              helmVersion: $(chartVersion)
               azureSubscription: ${{ variables.subscription }}
+              kubernetesRG: "${{ variables.clusterResourceGroup }}"
               kubernetesCluster: "${{ variables.clusterName }}"
+              namespace: "vh"
               chartName: 'vh-${{ parameters.git_repo_name }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
               additionalArgs: '-f ${{ variables.envValuesPath }}'
+

@@ -19,6 +19,8 @@ variables:
 
   - name: clusterName
     value: "ss-${{ parameters.env }}-00-aks"
+  - name: clusterResourceGroup
+    value: "ss-${{ parameters.env }}-00-rg"
 
   - name: chartPath
     value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
