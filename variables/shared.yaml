@@ -13,12 +13,27 @@ variables:
     value: 'vh/${{ parameters.git_repo_name }}'
   
   - name: prTagName
-    value: "pr-$(System.PullRequest.PullRequestId)"
+    value: "pr-666" ## TODO: change back to 'pr-$(System.PullRequest.PullRequestId)'
   - name: releaseTagName
     value: "prod-$(Build.SourceBranchName)"
 
   - name: clusterName
     value: "ss-${{ parameters.env }}-00-aks"
+  - name: clusterResourceGroup
+    value: "ss-${{ parameters.env }}-00-rg"
 
   - name: chartPath
     value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+  - name: envValuesPath
+    value: "${{ variables.chartPath }}/values.${env}.yaml"
+  - name: envValuesTemplatePath
+    value: "${{ variables.chartPath }}/values.${env}.template.yaml"
+    
+  - name: dnsZoneSubscription
+    value: "DTS-CFTPTL-INTSVC"
+  - name: dnsZoneResourceGroup
+    value: "core-infra-intsvc-rg"
+  - name: dnsZone
+    value: ${{ parameters.env }}.platform.hmcts.net
+  - name: dnsRecordName
+    value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.prTagName }}

@@ -101,10 +101,12 @@ parameters:
     values:
       - stg
       - dev
-  - name: acrDeploy
-    displayName: Deploy from ACR?
-    type: boolean
-    default: false
+  - name: cluster
+    displayName: Cluster ID to use
+    type: string
+    values:
+      - 00
+      - 01
       
 stages:
 
@@ -119,6 +121,8 @@ stages:
         value: 'sdshmctspublic'
       - name: repositoryName
         value: 'vh/${{ parameters.git_repo_name }}'
+      - name: chartPath
+        value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
     jobs:
       - job:
         steps:
@@ -147,6 +151,7 @@ stages:
                 - '$(Build.BuildNumber)'
                 - 'latest'
               
+      
           - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
             parameters:
               azureSubscription: ${{ variables.subscription }}
@@ -172,14 +177,47 @@ stages:
         value: 'sdshmctspublic'
       - name: repositoryName
         value: 'vh/${{ parameters.git_repo_name }}'
+      - name: tagName
+        value: "pr-$(System.PullRequest.PullRequestId)"
+      - name: dnsZone
+        value: ${{ parameters.env }}.platform.hmcts.net
+      - name: dnsRecordName
+        value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.tagName }}
     jobs:
       - job:
         steps:
-          - ${{ if eq(parameters.acrDeploy, true)}}:
-            - template: templates\Containerisation\helm\helm-deploy-from-acr.yaml@azTemplates
-              parameters:
-                azureSubscription: ${{ variables.azureSubscription }}
-                kubernetesCluster: "ss-${{ parameters.env }}-01"
-                chartName: 'vh-${{ parameters.git_repo_name }}'
-                chartPath: 'vh-${{ parameters.git_repo_name }}:latest'
-                imageTag: 'latest'
+          - bash: |
+              export IMAGE_NAME="'${imageName}'"
+              export SERVICE_FQDN="${fqdn}"
+                            
+              valuesEnvTemplate="./charts/vh-testing/values.${env}.template.yaml"
+              valuesEnv="./charts/vh-testing/values.${env}.yaml"
+              
+              if test -f "$valuesEnvTemplate"; then
+                envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+              fi
+            displayName: Set Environment Values
+            env:
+              imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.tagName }}
+              fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
+              env: ${{ parameters.env }}
+  
+                      
+          - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
+            parameters:
+              azureSubscription: ${{ variables.azureSubscription }}
+              kubernetesCluster: "ss-${{ parameters.env }}-01"
+              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartPath:
+              imageTag: 'latest'
+
+          - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
+            parameters:
+              subscriptionName: ${{ variables.azureSubscription }}
+              aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
+              aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
+              aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+              dnsSubscriptionName: "DTS-CFTPTL-INTSVC"
+              dnsResourceGroupName: "core-infra-intsvc-rg"
+              zoneName: ${{ variables.dnsZone }}
+              recordName: ${{ variables.dnsRecordName }}
