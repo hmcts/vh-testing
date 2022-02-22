@@ -174,7 +174,7 @@ stages:
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
 
-          - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml
+          - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml@azTemplates
             parameters:
               subscriptionName: ${{ variables.azureSubscription }}
               aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}"
