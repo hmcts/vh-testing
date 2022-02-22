@@ -127,6 +127,7 @@ stages:
     jobs:
       - job:
         steps:
+          - checkout: self
           - checkout: ${{ parameters.git_repo_name }}
           - bash: |
               export IMAGE_NAME="'${imageName}'"
