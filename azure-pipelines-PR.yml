@@ -184,7 +184,7 @@ stages:
 
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml@azTemplates
             parameters:
-              subscriptionName: ${{ variables.azureSubscription }}
+              subscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
               aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
               aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
               aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
