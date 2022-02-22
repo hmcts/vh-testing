@@ -32,7 +32,7 @@ variables:
   - name: dnsZoneSubscription
     value: "DTS-CFTPTL-INTSVC"
   - name: dnsZoneResourceGroup
-    value: "DTS-CFTPTL-INTSVC"
+    value: "core-infra-intsvc-rg"
   - name: dnsZone
     value: ${{ parameters.env }}.platform.hmcts.net
   - name: dnsRecordName
