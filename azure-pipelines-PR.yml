@@ -157,7 +157,7 @@ stages:
               aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
               aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
               aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
-              dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}"
+              dnsSubscriptionName: "${{ variables.dnsZoneSubscription }}"
               dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
               zoneName: ${{ variables.dnsZone }}
               recordName: ${{ variables.dnsRecordName }}
