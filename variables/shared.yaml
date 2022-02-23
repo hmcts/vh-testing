@@ -1,0 +1,39 @@
+parameters:
+  - name: env
+    type: string
+  - name: git_repo_name
+    type: string
+
+variables:
+  - name: subscription
+    value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
+  - name: acrName
+    value: 'sdshmctspublic'
+  - name: repositoryName
+    value: 'vh/${{ parameters.git_repo_name }}'
+  
+  - name: prTagName
+    value: "pr-666" ## TODO: change back to 'pr-$(System.PullRequest.PullRequestId)'
+  - name: releaseTagName
+    value: "prod-$(Build.SourceBranchName)"
+
+  - name: clusterName
+    value: "ss-${{ parameters.env }}-00-aks"
+  - name: clusterResourceGroup
+    value: "ss-${{ parameters.env }}-00-rg"
+
+  - name: chartPath
+    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+  - name: envValuesPath
+    value: "${{ variables.chartPath }}/values.${env}.yaml"
+  - name: envValuesTemplatePath
+    value: "${{ variables.chartPath }}/values.${env}.template.yaml"
+    
+  - name: dnsZoneSubscription
+    value: "DTS-CFTPTL-INTSVC"
+  - name: dnsZoneResourceGroup
+    value: "core-infra-intsvc-rg"
+  - name: dnsZone
+    value: ${{ parameters.env }}.platform.hmcts.net
+  - name: dnsRecordName
+    value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.prTagName }}
