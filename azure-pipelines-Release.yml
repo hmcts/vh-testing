@@ -104,7 +104,6 @@ stages:
     variables:
       - template: variables/shared.yaml
         parameters:
-          env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
       - group: vh-github-app-credentials
     jobs:
