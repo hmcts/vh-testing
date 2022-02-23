@@ -117,6 +117,19 @@ stages:
               cd $(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}
               git switch -c $(Build.SourceBranchName)
             displayName: 'Branch Checkout'
+            
+          - template: templates\Github\get-app-token.yaml@azTemplates
+            parameters:
+              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+              appId: $(gh_app_app_id)
+
+          - template: templates\Github\push-to-helm-chart-repo.yaml@azTemplates
+            parameters:
+              chartName: ${{ variables.chartName }}
+              chartPath: ${{ variables.chartPath }}
+              githubToken: $(githubappinstall.token)
+              githubUsername: $(gh_app_name)
+              githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
@@ -132,15 +145,3 @@ stages:
               imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
               imageTags:
                 - '${{ variables.releaseTagName }}'
-          - template: templates\Github\get-app-token.yaml@azTemplates
-            parameters:
-              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
-              appId: $(gh_app_app_id)
-
-          - template: templates\Github\push-to-helm-chart-repo.yaml@azTemplates
-            parameters:
-              chartName: ${{ variables.chartName }}
-              chartPath: ${{ variables.chartPath }}
-              githubToken: $(githubappinstall.token)
-              githubUsername: $(gh_app_name)
-              githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
