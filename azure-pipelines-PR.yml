@@ -183,19 +183,13 @@ stages:
               valuesEnvTemplate="${{ variables.envValuesTemplatePath }}"
               valuesEnv="${{ variables.envValuesPath }}"
               
-              helmArgs=" -o json"
-
               if test -f "$valuesEnvTemplate"; then
                 echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
-
-                helmArgs="-f $valuesEnv $helmArgs"
               else
                 echo "No Environment File"
               fi
-              echo "arg: $helmArgs"
-              echo "##vso[task.setvariable variable=helmArgs;isOutput=true]$helmArgs"
-            displayName: Set Helm Arguments
+            displayName: Create Environment Values File
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
@@ -230,4 +224,5 @@ stages:
               chartName: '${{ variables.chartName }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
-              additionalArgs: $(helmArgs)
+              environment: ${{ parameters.env }}
+              additionalArgs: "-o json"
