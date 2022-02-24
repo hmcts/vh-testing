@@ -96,6 +96,9 @@ parameters:
       - service-web
       - booking-queue-subscriber
       - scheduler-jobs
+  - name: pr_number
+    displayName: Pull Request ID
+    type: number
   - name: env
     type: string
     default: dev
@@ -159,24 +162,32 @@ stages:
       - name: envValuesPath
         value: "./charts/vh-testing/values.${env}.yaml"
       - group: vh-github-app-credentials
-      - name: branchName
-        value: 'chart-update' ##TODO: get from X location
+      - name: prTagName
+        value: 'pr-${{ parameters.pr_number }}'
     jobs:
       - job:
         steps:
           - checkout: self
-          - checkout: ${{ parameters.git_repo_name }}
-
+          
           - template: templates\Github\get-app-token.yaml@azTemplates
             parameters:
               privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
               appId: $(gh_app_app_id)
 
+          - template: templates\Github\get-pull-request-details.yaml@azTemplates
+            parameters:
+              repoName: ${{ parameters.git_repo_name }}
+              pullRequestId: ${{ parameters.pr_number }}
+          - template: templates\Github\clone.yaml@azTemplates
+            parameters:
+              repoName: ${{ parameters.git_repo_name }}
+              branchName: $(pr.branch)
+
           - template: templates\Github\bump-chart-versions.yaml@azTemplates
             parameters:
               chartName: ${{ variables.chartName }}
               chartPath: ${{ variables.chartRepoPath }}
-              chartBranch: ${{ variables.branchName }}
+              chartBranch: $(pr.branch)
               githubToken: $(githubappinstall.token)
               githubUsername: $(gh_app_name)
               githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
@@ -184,6 +195,7 @@ stages:
           - bash: |
               export IMAGE_NAME="'${imageName}'"
               export SERVICE_FQDN="${fqdn}"
+              export RELEASE_NAME="${releaseName}"
                             
               valuesEnvTemplate="${{ variables.envValuesTemplatePath }}"
               valuesEnv="${{ variables.envValuesPath }}"
@@ -200,6 +212,7 @@ stages:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
+              releaseName: "${{ variables.chartName }}-${{ variables.prTagName }}"
 
           - bash: |
               VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
