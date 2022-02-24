@@ -119,6 +119,7 @@ stages:
         parameters:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
+          cluster: ${{ parameters.cluster }}
     jobs:
       - job:
         steps:
@@ -154,6 +155,7 @@ stages:
         parameters:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
+          cluster: ${{ parameters.cluster }}
       - name: envValuesPath
         value: "./charts/vh-testing/values.${env}.yaml"
       - group: vh-github-app-credentials
@@ -163,7 +165,7 @@ stages:
       - job:
         steps:
           - checkout: self
-          - checkout: ${{ parameters.git_repo_name }}
+          - checkout: git://github.com/hmcts/${{ parameters.git_repo_name }}@${{ variables.branchName }}
 
           - template: templates\Github\get-app-token.yaml@azTemplates
             parameters:
@@ -189,6 +191,7 @@ stages:
               if test -f "$valuesEnvTemplate"; then
                 echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+                cat $valuesEnvTemplate
               else
                 echo "No Environment File"
               fi
@@ -210,8 +213,8 @@ stages:
             parameters:
               subscriptionName: "${{ variables.subscriptionName }}"
               aksSubscriptionName: "${{ variables.subscriptionName }}"
-              aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
-              aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+              aksResourceGroupName: "${{ variables.clusterResourceGroup }}"
+              aksClusterName: "${{ variables.clusterName }}"
               dnsSubscriptionName: "${{ variables.dnsZoneSubscription }}"
               dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
               zoneName: ${{ variables.dnsZone }}

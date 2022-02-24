@@ -105,6 +105,7 @@ stages:
       - template: variables/shared.yaml
         parameters:
           git_repo_name: ${{ parameters.git_repo_name }}
+          cluster: ${{ parameters.cluster }}
       - group: vh-github-app-credentials
     jobs:
       - job:
