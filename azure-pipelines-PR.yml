@@ -192,7 +192,7 @@ stages:
                 echo "No Environment File"
                 envValueArg=""
               fi
-              "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
+              echo "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
             displayName: Set Environment Values file
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
