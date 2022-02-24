@@ -1,6 +1,7 @@
 parameters:
   - name: env
     type: string
+    default: ""
   - name: git_repo_name
     type: string
 
@@ -22,6 +23,8 @@ variables:
   - name: clusterResourceGroup
     value: "ss-${{ parameters.env }}-00-rg"
 
+  - name: chartName
+    value: "vh-${{ parameters.git_repo_name }}"
   - name: chartPath
     value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
   - name: envValuesPath
@@ -37,3 +40,6 @@ variables:
     value: ${{ parameters.env }}.platform.hmcts.net
   - name: dnsRecordName
     value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.prTagName }}
+
+  - name: gh_app_private_key_file_name
+    value: hmcts-ado-cnp-app.private-key.pem
