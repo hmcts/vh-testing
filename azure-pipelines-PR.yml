@@ -188,10 +188,11 @@ stages:
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
 
                 envValueArg="-f $valuesEnv"
-                "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
               else
                 echo "No Environment File"
+                envValueArg=""
               fi
+              "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
             displayName: Set Environment Values file
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
@@ -224,8 +225,7 @@ stages:
               kubernetesRG: "${{ variables.clusterResourceGroup }}"
               kubernetesCluster: "${{ variables.clusterName }}"
               namespace: "vh"
-              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartName: '${{ variables.chartName }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
-              additionalArgs: "$(envValuePath)"
-
+              additionalArgs: $(envValuePath)
