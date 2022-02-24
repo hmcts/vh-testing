@@ -178,6 +178,7 @@ stages:
             parameters:
               repoName: ${{ parameters.git_repo_name }}
               pullRequestId: ${{ parameters.pr_number }}
+              
           - template: templates\Github\clone.yaml@azTemplates
             parameters:
               repoName: ${{ parameters.git_repo_name }}
