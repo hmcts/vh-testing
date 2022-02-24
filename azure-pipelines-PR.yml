@@ -157,6 +157,8 @@ stages:
       - name: envValuesPath
         value: "./charts/vh-testing/values.${env}.yaml"
       - group: vh-github-app-credentials
+      - name: branchName
+        value: 'chart-update' ##TODO: get from X location
     jobs:
       - job:
         steps:
@@ -172,6 +174,7 @@ stages:
             parameters:
               chartName: ${{ variables.chartName }}
               chartPath: ${{ variables.chartRepoPath }}
+              chartBranch: ${{ variables.branchName }}
               githubToken: $(githubappinstall.token)
               githubUsername: $(gh_app_name)
               githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
