@@ -230,4 +230,4 @@ stages:
               chartName: '${{ variables.chartName }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
-              additionalArgs: "$(helmArgs)"
+              additionalArgs: $(helmArgs)
