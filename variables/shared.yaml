@@ -25,8 +25,10 @@ variables:
 
   - name: chartName
     value: "vh-${{ parameters.git_repo_name }}"
+  - name: chartRepoPath
+    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}'
   - name: chartPath
-    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+    value: '${{ variables.chartRepoPath }}/charts/vh-${{ parameters.git_repo_name }}'
   - name: envValuesPath
     value: "${{ variables.chartPath }}/values.${env}.yaml"
   - name: envValuesTemplatePath

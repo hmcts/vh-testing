@@ -5,7 +5,7 @@ resources:
     - repository: azTemplates
       type: github
       name: hmcts/azure-devops-templates
-      ref: refs/heads/master
+      ref: refs/heads/bump-charts
       endpoint: hmcts
 
     - repository: user-api
@@ -156,11 +156,26 @@ stages:
           git_repo_name: ${{ parameters.git_repo_name }}
       - name: envValuesPath
         value: "./charts/vh-testing/values.${env}.yaml"
+      - group: vh-github-app-credentials
     jobs:
       - job:
         steps:
           - checkout: self
           - checkout: ${{ parameters.git_repo_name }}
+
+          - template: templates\Github\get-app-token.yaml@azTemplates
+            parameters:
+              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+              appId: $(gh_app_app_id)
+
+          - template: templates\Github\bump-chart-versions.yaml@azTemplates
+            parameters:
+              chartName: ${{ variables.chartName }}
+              chartPath: ${{ variables.chartRepoPath }}
+              githubToken: $(githubappinstall.token)
+              githubUsername: $(gh_app_name)
+              githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
+
           - bash: |
               export IMAGE_NAME="'${imageName}'"
               export SERVICE_FQDN="${fqdn}"
