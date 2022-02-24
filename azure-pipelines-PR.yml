@@ -176,12 +176,12 @@ stages:
 
           - template: templates\Github\get-pull-request-details.yaml@azTemplates
             parameters:
-              repoName: ${{ parameters.git_repo_name }}
+              repoName: ${{ variables.gitRepoName }}
               pullRequestId: ${{ parameters.pr_number }}
-              
+
           - template: templates\Github\clone.yaml@azTemplates
             parameters:
-              repoName: ${{ parameters.git_repo_name }}
+              repoName: ${{ variables.gitRepoName }}
               branchName: $(pr.branch)
 
           - template: templates\Github\bump-chart-versions.yaml@azTemplates
