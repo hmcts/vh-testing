@@ -7,7 +7,7 @@ parameters:
 
 variables:
   - name: subscriptionName
-    value: "${{ variables.subscriptionName }}"
+    value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
 
   - name: acrSubscription
     value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
