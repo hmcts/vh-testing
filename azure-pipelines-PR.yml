@@ -164,6 +164,8 @@ stages:
       - group: vh-github-app-credentials
       - name: prTagName
         value: 'pr-${{ parameters.pr_number }}'
+      - name: dnsRecordName
+        value: ${{ parameters.git_repo_name }}-${{ variables.prTagName }}
     jobs:
       - job:
         steps:
