@@ -6,7 +6,10 @@ parameters:
     type: string
 
 variables:
-  - name: subscription
+  - name: subscriptionName
+    value: "${{ variables.subscriptionName }}"
+
+  - name: acrSubscription
     value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
   - name: acrName
     value: 'sdshmctspublic'

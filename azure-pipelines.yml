@@ -116,7 +116,7 @@ stages:
       - name: subscription
         value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
       - name: k8sSubscription
-        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+        value: "${{ variables.subscriptionName }}"
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName
@@ -137,13 +137,13 @@ stages:
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
             
           - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
               imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
@@ -154,7 +154,7 @@ stages:
       
           - template: templates\Containerisation\helm\helm-push-v2-max.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
               chartName: 'vh-${{ parameters.git_repo_name }}'
@@ -172,7 +172,7 @@ stages:
     displayName: Deploy Helm  chart to ss-${{ parameters.env }}-00-aks
     variables:
       - name: azureSubscription
-        value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+        value: "${{ variables.subscriptionName }}"
       - name: acrName
         value: 'sdshmctspublic'
       - name: repositoryName

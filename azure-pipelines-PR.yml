@@ -133,13 +133,13 @@ stages:
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
             
           - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
               imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
@@ -208,8 +208,8 @@ stages:
 
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml@azTemplates
             parameters:
-              subscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
-              aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+              subscriptionName: "${{ variables.subscriptionName }}"
+              aksSubscriptionName: "${{ variables.subscriptionName }}"
               aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
               aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
               dnsSubscriptionName: "${{ variables.dnsZoneSubscription }}"
@@ -220,7 +220,7 @@ stages:
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
               helmVersion: $(chartVersion)
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.subscriptionName }}
               kubernetesRG: "${{ variables.clusterResourceGroup }}"
               kubernetesCluster: "${{ variables.clusterName }}"
               namespace: "vh"
