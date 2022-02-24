@@ -165,7 +165,7 @@ stages:
       - job:
         steps:
           - checkout: self
-          - checkout: git://github.com/hmcts/${{ parameters.git_repo_name }}@${{ variables.branchName }}
+          - checkout: ${{ parameters.git_repo_name }}
 
           - template: templates\Github\get-app-token.yaml@azTemplates
             parameters:
