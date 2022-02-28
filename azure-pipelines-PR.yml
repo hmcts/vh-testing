@@ -120,6 +120,9 @@ stages:
       - job:
         steps:
           - checkout: self
+
+          - bash: |
+              echo "build: $(Build.BuildNumber) "
           
           - template: templates\Github\get-app-token.yaml@azTemplates
             parameters:
