@@ -120,10 +120,7 @@ stages:
       - job:
         steps:
           - checkout: self
-
-          - bash: |
-              echo "build: $(Build.BuildNumber) "
-          
+        
           - template: templates\Github\get-app-token.yaml@azTemplates
             parameters:
               privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
