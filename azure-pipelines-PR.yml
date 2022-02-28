@@ -102,7 +102,7 @@ stages:
                 - '${{ variables.prTagName }}'
 
   - stage: Install
-    dependsOn: Dock
+    dependsOn: []
     displayName: Deploy Helm chart to ${{ variables.clusterName }}
     variables:
       - template: variables/shared.yaml
@@ -157,6 +157,7 @@ stages:
               if test -f "$valuesEnvTemplate"; then
                 echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+                echo "created $valuesEnv"
                 cat $valuesEnv
               else
                 echo "No Environment File"
