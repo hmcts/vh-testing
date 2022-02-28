@@ -123,6 +123,8 @@ stages:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
           cluster: ${{ parameters.cluster }}
+      - name: prTagName
+        value: 'pr-${{ parameters.pr_number }}'
     jobs:
       - job:
         steps:
