@@ -8,72 +8,6 @@ resources:
       ref: refs/heads/bump-charts
       endpoint: hmcts
 
-    - repository: user-api
-      type: github
-      name: hmcts/vh-user-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: video-api
-      type: github
-      name: hmcts/vh-video-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: video-web
-      type: github
-      name: hmcts/vh-video-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: bookings-api
-      type: github
-      name: hmcts/vh-bookings-api
-      ref: refs/heads/chart-update
-      endpoint: hmcts
-
-    - repository: notification-api
-      type: github
-      name: hmcts/vh-notification-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: test-web
-      type: github
-      name: hmcts/vh-test-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: test-api
-      type: github
-      name: hmcts/vh-test-api
-      ref: refs/heads/VIH-7245-test-api
-      endpoint: hmcts
-
-    - repository: admin-web
-      type: github
-      name: hmcts/vh-admin-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: service-web
-      type: github
-      name: hmcts/vh-service-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: booking-queue-subscriber
-      type: github
-      name: hmcts/vh-booking-queue-subscriber
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: scheduler-jobs
-      type: github
-      name: hmcts/vh-scheduler-jobs
-      ref: refs/heads/master
-      endpoint: hmcts
-
     - repository: cnp-library
       type: github
       name: hmcts/cnp-azuredevops-libraries
@@ -129,7 +63,21 @@ stages:
       - job:
         steps:
           - checkout: self
-          - checkout: ${{ parameters.git_repo_name }}
+          
+          - template: templates\Github\get-app-token.yaml@azTemplates
+            parameters:
+              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+              appId: $(gh_app_app_id)
+
+          - template: templates\Github\get-pull-request-details.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              pullRequestId: ${{ parameters.pr_number }}
+
+          - template: templates\Github\clone.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              branchName: $(pr.branch)
         
           - bash: |
               echo "testing. Repo name ${{ parameters.git_repo_name }}"
@@ -153,7 +101,7 @@ stages:
                 - '${{ variables.prTagName }}'
 
   - stage: Install
-    dependsOn: []
+    dependsOn: Dock
     displayName: Deploy Helm chart to ${{ variables.clusterName }}
     variables:
       - template: variables/shared.yaml
@@ -198,7 +146,7 @@ stages:
               githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
 
           - bash: |
-              export IMAGE_NAME="'${imageName}'"
+              export IMAGE_NAME="${imageName}"
               export SERVICE_FQDN="${fqdn}"
               export RELEASE_NAME="${releaseName}"
                             
