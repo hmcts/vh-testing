@@ -208,7 +208,7 @@ stages:
               if test -f "$valuesEnvTemplate"; then
                 echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
-                cat $valuesEnvTemplate
+                cat $valuesEnv
               else
                 echo "No Environment File"
               fi
