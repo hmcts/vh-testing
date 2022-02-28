@@ -110,8 +110,6 @@ stages:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
           cluster: ${{ parameters.cluster }}
-      - name: envValuesPath
-        value: "./charts/vh-testing/values.${env}.yaml"
       - group: vh-github-app-credentials
       - name: prTagName
         value: 'pr-${{ parameters.pr_number }}'
