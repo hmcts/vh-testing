@@ -59,6 +59,7 @@ stages:
           cluster: ${{ parameters.cluster }}
       - name: prTagName
         value: 'pr-${{ parameters.pr_number }}'
+      - group: vh-github-app-credentials
     jobs:
       - job:
         steps:
