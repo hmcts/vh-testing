@@ -4,29 +4,36 @@ parameters:
     default: ""
   - name: git_repo_name
     type: string
+  - name: cluster
+    type: string
 
 variables:
-  - name: subscription
+  - name: subscriptionName
+    value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+
+  - name: acrSubscription
     value: 'DTS-SHAREDSERVICES-PROD-Video Hearings'
   - name: acrName
     value: 'sdshmctspublic'
   - name: repositoryName
     value: 'vh/${{ parameters.git_repo_name }}'
   
-  - name: prTagName
-    value: "pr-666" ## TODO: change back to 'pr-$(System.PullRequest.PullRequestId)'
   - name: releaseTagName
     value: "prod-$(Build.SourceBranchName)"
+  - name: gitRepoName
+    value: vh-${{ parameters.git_repo_name }}
 
   - name: clusterName
-    value: "ss-${{ parameters.env }}-00-aks"
+    value: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
   - name: clusterResourceGroup
-    value: "ss-${{ parameters.env }}-00-rg"
+    value: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
 
   - name: chartName
     value: "vh-${{ parameters.git_repo_name }}"
+  - name: chartRepoPath
+    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}'
   - name: chartPath
-    value: '$(Build.SourcesDirectory)/vh-${{ parameters.git_repo_name }}/charts/vh-${{ parameters.git_repo_name }}'
+    value: '${{ variables.chartRepoPath }}/charts/vh-${{ parameters.git_repo_name }}'
   - name: envValuesPath
     value: "${{ variables.chartPath }}/values.${env}.yaml"
   - name: envValuesTemplatePath
@@ -38,8 +45,6 @@ variables:
     value: "core-infra-intsvc-rg"
   - name: dnsZone
     value: ${{ parameters.env }}.platform.hmcts.net
-  - name: dnsRecordName
-    value: ${{ parameters.git_repo_name }}-dotnet-${{ variables.prTagName }}
 
   - name: gh_app_private_key_file_name
     value: hmcts-ado-cnp-app.private-key.pem

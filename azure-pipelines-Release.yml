@@ -105,6 +105,7 @@ stages:
       - template: variables/shared.yaml
         parameters:
           git_repo_name: ${{ parameters.git_repo_name }}
+          cluster: ${{ parameters.cluster }}
       - group: vh-github-app-credentials
     jobs:
       - job:
@@ -133,13 +134,13 @@ stages:
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
             
           - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
               imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"

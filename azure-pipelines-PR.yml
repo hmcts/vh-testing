@@ -8,72 +8,6 @@ resources:
       ref: refs/heads/master
       endpoint: hmcts
 
-    - repository: user-api
-      type: github
-      name: hmcts/vh-user-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: video-api
-      type: github
-      name: hmcts/vh-video-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: video-web
-      type: github
-      name: hmcts/vh-video-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: bookings-api
-      type: github
-      name: hmcts/vh-bookings-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: notification-api
-      type: github
-      name: hmcts/vh-notification-api
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: test-web
-      type: github
-      name: hmcts/vh-test-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: test-api
-      type: github
-      name: hmcts/vh-test-api
-      ref: refs/heads/VIH-7245-test-api
-      endpoint: hmcts
-
-    - repository: admin-web
-      type: github
-      name: hmcts/vh-admin-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: service-web
-      type: github
-      name: hmcts/vh-service-web
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: booking-queue-subscriber
-      type: github
-      name: hmcts/vh-booking-queue-subscriber
-      ref: refs/heads/master
-      endpoint: hmcts
-
-    - repository: scheduler-jobs
-      type: github
-      name: hmcts/vh-scheduler-jobs
-      ref: refs/heads/master
-      endpoint: hmcts
-
     - repository: cnp-library
       type: github
       name: hmcts/cnp-azuredevops-libraries
@@ -96,6 +30,9 @@ parameters:
       - service-web
       - booking-queue-subscriber
       - scheduler-jobs
+  - name: pr_number
+    displayName: Pull Request ID
+    type: number
   - name: env
     type: string
     default: dev
@@ -119,11 +56,29 @@ stages:
         parameters:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
+          cluster: ${{ parameters.cluster }}
+      - name: prTagName
+        value: 'pr-${{ parameters.pr_number }}'
+      - group: vh-github-app-credentials
     jobs:
       - job:
         steps:
           - checkout: self
-          - checkout: ${{ parameters.git_repo_name }}
+          
+          - template: templates\Github\get-app-token.yaml@azTemplates
+            parameters:
+              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+              appId: $(gh_app_app_id)
+
+          - template: templates\Github\get-pull-request-details.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              pullRequestId: ${{ parameters.pr_number }}
+
+          - template: templates\Github\clone.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              branchName: $(pr.branch)
         
           - bash: |
               echo "testing. Repo name ${{ parameters.git_repo_name }}"
@@ -133,13 +88,13 @@ stages:
         
           - template: templates\Containerisation\docker\docker-compose.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
             
           - template: templates\Containerisation\docker\docker-push-azure.yaml@azTemplates
             parameters:
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.acrSubscription }}
               acrName: ${{ variables.acrName }}
               repositoryName:  ${{ variables.repositoryName }}
               imageName: "${{ replace(parameters.git_repo_name, '-', '') }}"
@@ -147,23 +102,52 @@ stages:
                 - '${{ variables.prTagName }}'
 
   - stage: Install
-    dependsOn: []
+    dependsOn: Dock
     displayName: Deploy Helm chart to ${{ variables.clusterName }}
     variables:
       - template: variables/shared.yaml
         parameters:
           env: ${{ parameters.env }}
           git_repo_name: ${{ parameters.git_repo_name }}
-      - name: envValuesPath
-        value: "./charts/vh-testing/values.${env}.yaml"
+          cluster: ${{ parameters.cluster }}
+      - group: vh-github-app-credentials
+      - name: prTagName
+        value: 'pr-${{ parameters.pr_number }}'
+      - name: dnsRecordName
+        value: ${{ parameters.git_repo_name }}-${{ variables.prTagName }}
     jobs:
       - job:
         steps:
           - checkout: self
-          - checkout: ${{ parameters.git_repo_name }}
+        
+          - template: templates\Github\get-app-token.yaml@azTemplates
+            parameters:
+              privateKeyFileName: ${{ variables.gh_app_private_key_file_name }}
+              appId: $(gh_app_app_id)
+
+          - template: templates\Github\get-pull-request-details.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              pullRequestId: ${{ parameters.pr_number }}
+
+          - template: templates\Github\clone.yaml@azTemplates
+            parameters:
+              repoName: ${{ variables.gitRepoName }}
+              branchName: $(pr.branch)
+
+          - template: templates\Github\bump-chart-versions.yaml@azTemplates
+            parameters:
+              chartName: ${{ variables.chartName }}
+              chartPath: ${{ variables.chartRepoPath }}
+              chartBranch: $(pr.branch)
+              githubToken: $(githubappinstall.token)
+              githubUsername: $(gh_app_name)
+              githubEmail: "$(gh_app_app_id)+$(gh_app_name)[bot]@users.noreply.github.com"
+
           - bash: |
-              export IMAGE_NAME="'${imageName}'"
+              export IMAGE_NAME="${imageName}"
               export SERVICE_FQDN="${fqdn}"
+              export RELEASE_NAME="${releaseName}"
                             
               valuesEnvTemplate="${{ variables.envValuesTemplatePath }}"
               valuesEnv="${{ variables.envValuesPath }}"
@@ -171,17 +155,17 @@ stages:
               if test -f "$valuesEnvTemplate"; then
                 echo "$valuesEnvTemplate found"
                 envsubst < ${valuesEnvTemplate} > ${valuesEnv}
-
-                envValueArg="-f $valuesEnv"
-                "##vso[task.setvariable variable=envValuePath;isOutput=true]$envValueArg"
+                echo "created $valuesEnv"
+                cat $valuesEnv
               else
                 echo "No Environment File"
               fi
-            displayName: Set Environment Values file
+            displayName: Create Environment Values File
             env:
               imageName: ${{ variables.acrName }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.prTagName }}
               fqdn: ${{ variables.dnsRecordName }}.${{ variables.dnsZone }}
               env: ${{ parameters.env }}
+              releaseName: "${{ variables.chartName }}-${{ variables.prTagName }}"
 
           - bash: |
               VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
@@ -193,10 +177,10 @@ stages:
 
           - template: templates\Azure\Dns\private-dns-add-aks-pr.yaml@azTemplates
             parameters:
-              subscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
-              aksSubscriptionName: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
-              aksResourceGroupName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
-              aksClusterName: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+              subscriptionName: "${{ variables.subscriptionName }}"
+              aksSubscriptionName: "${{ variables.subscriptionName }}"
+              aksResourceGroupName: "${{ variables.clusterResourceGroup }}"
+              aksClusterName: "${{ variables.clusterName }}"
               dnsSubscriptionName: "${{ variables.dnsZoneSubscription }}"
               dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
               zoneName: ${{ variables.dnsZone }}
@@ -205,12 +189,12 @@ stages:
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
               helmVersion: $(chartVersion)
-              azureSubscription: ${{ variables.subscription }}
+              azureSubscription: ${{ variables.subscriptionName }}
               kubernetesRG: "${{ variables.clusterResourceGroup }}"
               kubernetesCluster: "${{ variables.clusterName }}"
               namespace: "vh"
-              chartName: 'vh-${{ parameters.git_repo_name }}'
+              chartName: '${{ variables.chartName }}'
               chartPath: '${{ variables.chartPath }}'
               imageTag: '${{ variables.prTagName }}'
-              additionalArgs: "$(envValuePath)"
-
+              environment: ${{ parameters.env }}
+              additionalArgs: "-o json"
