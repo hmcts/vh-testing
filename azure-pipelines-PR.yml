@@ -188,12 +188,12 @@ stages:
 
           - template: templates\Azure\AAD\apps\get-by-name.yaml@azTemplates
             parameters:
-              subscriptionName: "${{ variables.subscriptionName }}"
+              azureSubscription: "${{ variables.subscriptionName }}"
               name: "${{ variables.gitRepoName }}-${{ parameters.env }}"
 
           - template: templates\Azure\AAD\apps\add-remove-replyruls.yaml@azTemplates
             parameters:
-              subscriptionName: "${{ variables.subscriptionName }}"
+              azureSubscription: "${{ variables.subscriptionName }}"
               action: "add"
               domain: "https://${{ variables.dnsRecordName }}"
               appId: $(app.appId)
