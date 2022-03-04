@@ -5,7 +5,7 @@ resources:
     - repository: azTemplates
       type: github
       name: hmcts/azure-devops-templates
-      ref: refs/heads/master
+      ref: refs/heads/ad-replyurls
       endpoint: hmcts
 
     - repository: cnp-library
@@ -185,7 +185,23 @@ stages:
               dnsResourceGroupName: "${{ variables.dnsZoneResourceGroup }}"
               zoneName: ${{ variables.dnsZone }}
               recordName: ${{ variables.dnsRecordName }}
-  
+
+          - template: templates\Azure\AAD\apps\get-by-name.yaml@azTemplates
+            parameters:
+              subscriptionName: "${{ variables.subscriptionName }}"
+              name: "${{ variables.gitRepoName }}-${{ parameters.env }}"
+
+          - template: templates\Azure\AAD\apps\add-remove-replyruls.yaml@azTemplates
+            parameters:
+              subscriptionName: "${{ variables.subscriptionName }}"
+              action: "add"
+              domain: "https://${{ variables.dnsRecordName }}"
+              appId: $(app.appId)
+              domainUris:
+                - "/"
+                - "/login"
+                - "/home"
+
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
               helmVersion: $(chartVersion)
