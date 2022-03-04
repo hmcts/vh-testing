@@ -200,7 +200,7 @@ stages:
               azureClientSecret: $(vh_client_secret)
               azureTenant: $(vh_tenant_id)
               action: "add"
-              domain: "https://${{ variables.dnsRecordName }}"
+              domain: "https://${{ variables.dnsRecordName }}.${{ variables.dnsZone }}"
               appId: $(app.appId)
               domainUris: ['/', '/login', '/home']
 
