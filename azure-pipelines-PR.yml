@@ -202,10 +202,7 @@ stages:
               action: "add"
               domain: "https://${{ variables.dnsRecordName }}.${{ variables.dnsZone }}"
               appId: $(app.appId)
-              domainUris: 
-                - "/"
-                - "/login"
-                - "/home"
+              domainUris:  "/,/login,/home"
 
           - template: templates\Containerisation\helm\helm-deploy.yaml@azTemplates
             parameters:
