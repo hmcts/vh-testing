@@ -5,7 +5,7 @@ resources:
     - repository: azTemplates
       type: github
       name: hmcts/azure-devops-templates
-      ref: refs/heads/ad-replyurls
+      ref: refs/heads/master
       endpoint: hmcts
 
     - repository: cnp-library
@@ -102,7 +102,7 @@ stages:
                 - '${{ variables.prTagName }}'
 
   - stage: Install
-    dependsOn: [] # Dock
+    dependsOn: Dock
     displayName: Deploy Helm chart to ${{ variables.clusterName }}
     variables:
       - template: variables/shared.yaml
